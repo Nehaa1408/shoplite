@@ -1,0 +1,388 @@
+import React from "react";
+import { useCart } from "../../context/CartContext";
+import { useNavigate } from "react-router-dom";
+const Home = () => {
+  const navigate = useNavigate();
+  const { addToCart, cart } = useCart();
+
+  const [filters, setFilters] = React.useState({
+    category: "",
+    price: "",
+    brand: "",
+  });
+
+  const [currentPage, setCurrentPage] = React.useState(1);
+  const productsPerPage = 6;
+
+  const products = [
+    {
+      id: 1,
+      name: "Modern Tech Watch",
+      desc: "Space Grey Edition",
+      price: "$129.00",
+      priceValue: 129,
+      category: "electronics",
+      brand: "tech",
+      image:
+        "https://lh3.googleusercontent.com/aida-public/AB6AXuAUMurXWubWjIsx3nJk-e0Ed7TTwV_b6mfVTAvmXQISyd1TcxOsoGRGtLJZRE8Xsi-EZgVB53gJTU7QlIN6Fq21gGqRk3N8q7PyzZXPMFw4bHuxb6VI-2rferKVQgZt4dh9YrOQzL9vZxDgtFI1iiooWREnPQNFJfMeHl175IKCeTwve3awd3wjXYZBi_KjxQtrD78_X847CjiBBTVLgrBMtMYsl0ueoLSVrwoziQWpRDBuGkNpIWd3ceuLRLXjF3Q_aXFSsbniSOk",
+      tag: "New Arrival",
+    },
+    {
+      id: 2,
+      name: "Eco-friendly Backpack",
+      desc: "Sustainable Canvas",
+      price: "$89.00",
+      priceValue: 89,
+      category: "fashion",
+      brand: "eco",
+      image:
+        "https://lh3.googleusercontent.com/aida-public/AB6AXuByI1JjOhr0tqL3krxHZ2yrbM6pZqwumnesrHF3Mbf9JmHEWutM_zUM10-rEso_2ts22Dka9PitUH15KGwcuVo-V70uAZHgMLNLbfciNkIhywgTfj83TH8BPe7tkq7UZcAr8P-89VhoOFO-TNejXACQnMzaWRHuoYOz8zH16cZEc3Ysj_hgjf-kPuQW5mzhCKOmoXgDZG2leIvjmCEO5mxpi_HxFickMpRe_70JrRK_CvwNFcrgudxjwXXCQU0awBoCgMvhlnvoXIM",
+      tag: "Sale",
+    },
+    {
+      id: 3,
+      name: "Premium Over-Ear",
+      desc: "Active Noise Cancelling",
+      price: "$349.00",
+      priceValue: 349,
+      category: "electronics",
+      brand: "tech",
+      image:
+        "https://lh3.googleusercontent.com/aida-public/AB6AXuAH94kYs6-Y66d0xsysVG-JbvFSFtbp-Svb_9yKITM7TRKIoqXeUh98v5XXrAU3k5kYs6ZmFjJiPbLjNC-u7si8Xvv4w2w5q_iV8Q90VTaoddIaNgVAj6T0Z9GwWraDnTJ6RSE4LbsiGPPG9hELH4C_4H2bF_5k-7qZxWHPrabyrK69W6Q3l3RQT5dVH_cjAUqrbJ1yL9l7xPqBEWYr7oXszEYuflK87kOtAXT9wOhfNV9OEb2Ab5PaKGU7XFxt1Gu9VqlXmInegq8",
+    },
+    {
+      id: 4,
+      name: "Luxe Leather Tote",
+      desc: "Italian Grain Leather",
+      price: "$210.00",
+      priceValue: 210,
+      category: "fashion",
+      brand: "luxury",
+      image:
+        "https://lh3.googleusercontent.com/aida-public/AB6AXuB-CyhHGJfQYM1Ymj8SLEFBTHBKSWmYir1-LNM0dIsDaphUydPyzpXomp2dQJiDoA0id4fL7hI7MXZXm9TYoXajkoDxHVEY_6bNl5_nHJGor9vZh3NJxfVo4RXI6ECIfyJc10Q63C57mRURxEx2UYuWo95uS8xMDgT3VFtUPZbHM7YhnhlU6nGAczIgsv77QsTm5-rktt9HNtbQmgiRzJbqplz8ygUFuL8LclsPkr_eeP8ak05BnZiZ7UCabLXwPyl93PHS0l0me44",
+    },
+    {
+      id: 5,
+      name: "Aero-Peak Runner",
+      desc: "Pro Athletic Series",
+      price: "$155.00",
+      priceValue: 155,
+      category: "fashion",
+      brand: "nike",
+      image:
+        "https://lh3.googleusercontent.com/aida-public/AB6AXuAXMxMiJJl0aKSv-hStpEYSOPZJJtScvk83K9DK0m15ZCLMyqPLr6rUCrQIcNGBBBe-GfM9iX5U2NPg5OuK_5ukxlZ9lCSbgSQrMDpbA-3vSF5K9AdFX7OIkGLLeTXq5iNOyCUSmUC5_lOwqS-IPhQ6L3XC8lYoWSWdnKTsK0BTVSvvKQj8-qXDLbsTtrK7X8mrciAR9x3WysLeyAFtefrDqQSMg6PBUVr7VAkJMt9ESGliyJLeteEwRGTwORbObXOg9xP4249ZL_g",
+    },
+    {
+      id: 6,
+      name: "Ocean-Gaze Eyewear",
+      desc: "UV400 Protection",
+      price: "$180.00",
+      priceValue: 180,
+      category: "accessories",
+      brand: "luxury",
+      image:
+        "https://lh3.googleusercontent.com/aida-public/AB6AXuC7r0sWFGk8RC9zuXaym9yXUZ0EtJYA3xFjXL_dr_WZUdou7CT3-WpsR-ZYNsV7Yvk4hmN_GtX3z_qKD6jWu8i96HSy3yedbxP7G54G6_LgpmcR_YvzdsKXW06dZNp1zgE6XW8xvRdUWNp95u5P2GtpOx-rDF7w9fTCgelm6wRvyKdbnMnHL2y3djurHOyd8f05sP1sIaGuTe7oWZC80oBu9aaMApko_kHFowc5LlcX44rRAfwpg4AkJrirHDlHkT1eWyeXp7hg1CA",
+    },
+  ];
+
+  const filteredProducts = products.filter((product) => {
+    return (
+      (filters.category === "" || product.category === filters.category) &&
+      (filters.brand === "" || product.brand === filters.brand) &&
+      (filters.price === "" ||
+        (filters.price === "low" && product.priceValue < 150) ||
+        (filters.price === "high" && product.priceValue >= 150))
+    );
+  });
+
+  const startIndex = (currentPage - 1) * productsPerPage;
+  const currentProducts = filteredProducts.slice(
+    startIndex,
+    startIndex + productsPerPage,
+  );
+  const totalPages = Math.ceil(filteredProducts.length / productsPerPage);
+
+  const toggleFilter = (type, value) => {
+    setFilters((prev) => ({
+      ...prev,
+      [type]: prev[type] === value ? "" : value,
+    }));
+    setCurrentPage(1);
+  };
+
+  return (
+    <div className="bg-surface text-on-background min-h-screen flex flex-col glow-bg">
+      {/* Navbar */}
+      <nav className="fixed top-0 w-full z-50 h-16 bg-[#f9f5ff]/80 backdrop-blur-xl flex justify-between items-center px-6 md:px-12 max-w-[1920px] mx-auto shadow-[0_1px_0_rgba(171,169,215,0.15)] shadow-[0_12px_32px_rgba(43,42,81,0.06)]">
+        <div className="text-2xl font-black tracking-tighter text-[#0846ed] font-['Manrope']">
+          ShopLite
+        </div>
+
+        <div className="hidden md:flex flex-1 max-w-xl mx-8 relative">
+          <input
+            className="w-full bg-surface-container-highest/40 border-none rounded-sm px-10 py-2 text-sm focus:ring-2 focus:ring-primary-fixed-dim/30 focus:bg-surface-container-lowest transition-all"
+            placeholder="Search products..."
+          />
+          <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant text-sm">
+            search
+          </span>
+        </div>
+
+        <div className="flex items-center gap-4">
+          <button
+            onClick={() => navigate("/cart")}
+            className="p-2 rounded-lg text-[#2b2a51] opacity-70 hover:bg-[#f2f1ff] transition relative"
+          >
+            <span className="material-symbols-outlined">shopping_cart</span>
+
+            {cart.length > 0 && (
+              <span className="absolute -top-1 -right-1 bg-primary text-white text-[10px] px-1.5 py-0.5 rounded-full">
+                {cart.length}
+              </span>
+            )}
+          </button>
+          <button
+            onClick={() => navigate("/profile")}
+            className="p-2 rounded-lg text-[#2b2a51] opacity-70 hover:bg-[#f2f1ff] transition"
+          >
+            <span className="material-symbols-outlined">account_circle</span>
+          </button>
+        </div>
+      </nav>
+
+      {/* Main */}
+      <main className="flex-grow pt-16 flex max-w-[1920px] mx-auto w-full">
+        {/* Sidebar */}
+        <aside className="hidden lg:flex flex-col gap-y-2 p-6 h-screen w-64 fixed left-0 border-r border-[#aba9d7]/15 bg-[#f9f5ff] pt-20">
+          <div className="mb-6">
+            <h2 className="text-[#0846ed] text-lg font-bold font-['Manrope']">
+              Filters
+            </h2>
+            <p className="text-sm text-[#2b2a51]/60">Refine your selection</p>
+          </div>
+
+          <nav className="space-y-1">
+            <a
+              onClick={() => navigate("/categories")}
+              className="flex items-center gap-3 p-3 hover:text-[#0846ed] hover:bg-[#f2f1ff] transition cursor-pointer"
+            >
+              <span className="material-symbols-outlined">category</span>
+              Categories
+            </a>
+
+            <a className="flex items-center gap-3 p-3 bg-white text-[#0846ed] rounded-lg shadow-sm font-semibold">
+              <span className="material-symbols-outlined">payments</span>
+              Price Range
+            </a>
+
+            <a
+              onClick={() => navigate("/brands")}
+              className="flex items-center gap-3 p-3 hover:text-[#0846ed] hover:bg-[#f2f1ff] transition cursor-pointer"
+            >
+              <span className="material-symbols-outlined">loyalty</span>
+              Brands
+            </a>
+
+            <a 
+            onClick={() => navigate("/top-deals")}
+            className="flex items-center gap-3 p-3 hover:text-[#0846ed] hover:bg-[#f2f1ff] transition">
+              <span className="material-symbols-outlined">stars</span>
+              Top Deals
+            </a>
+          </nav>
+
+          <button
+            onClick={() =>
+              setFilters({
+                category: "",
+                price: "",
+                brand: "",
+                topdeals: "",
+              })
+            }
+            className="mt-auto py-2 text-xs font-bold text-[#0846ed] border rounded-lg"
+          ></button>
+        </aside>
+
+        {/* RIGHT SIDE CONTENT */}
+        <div className="flex-1 lg:ml-64">
+          {/* HERO SECTION */}
+          <section className="px-8 md:px-12 py-16">
+            <div className="flex flex-col lg:flex-row items-center justify-between gap-12">
+              {/* LEFT TEXT */}
+              <div className="max-w-xl space-y-6">
+                <h1 className="text-5xl font-black font-['Manrope'] leading-tight">
+                  Elevate Your <br />
+                  <span className="text-primary">Shopping Experience</span>
+                </h1>
+
+                <p className="text-on-surface-variant text-lg">
+                  Discover premium products curated for modern lifestyles.
+                  Minimal. Elegant. Powerful.
+                </p>
+
+                <div className="flex gap-4 pt-2">
+                  <button className="px-6 py-3 rounded-xl bg-gradient-to-br from-primary to-primary-container text-on-primary font-semibold shadow-lg hover:scale-[0.97] transition">
+                    Shop Now
+                  </button>
+
+                  <button className="px-6 py-3 rounded-xl border border-outline-variant text-on-background font-semibold hover:bg-surface-container-low transition">
+                    Explore
+                  </button>
+                </div>
+              </div>
+
+              {/* RIGHT IMAGE */}
+              <div className="relative">
+                <img
+                  src="https://lh3.googleusercontent.com/aida-public/AB6AXuAH94kYs6-Y66d0xsysVG-JbvFSFtbp-Svb_9yKITM7TRKIoqXeUh98v5XXrAU3k5kYs6ZmFjJiPbLjNC-u7si8Xvv4w2w5q_iV8Q90VTaoddIaNgVAj6T0Z9GwWraDnTJ6RSE4LbsiGPPG9hELH4C_4H2bF_5k-7qZxWHPrabyrK69W6Q3l3RQT5dVH_cjAUqrbJ1yL9l7xPqBEWYr7oXszEYuflK87kOtAXT9wOhfNV9OEb2Ab5PaKGU7XFxt1Gu9VqlXmInegq8"
+                  className="w-full max-w-md rounded-3xl shadow-[0_20px_60px_rgba(8,70,237,0.2)]"
+                />
+
+                <div className="absolute -top-10 -left-10 w-40 h-40 bg-primary/20 blur-3xl rounded-full"></div>
+              </div>
+            </div>
+          </section>
+
+          {/* Product Section */}
+          <section className="p-8 md:p-12">
+            <div className="mb-10 flex justify-between items-end">
+              <div>
+                <h1 className="text-4xl font-black mb-2">
+                  Featured Collection
+                </h1>
+                <p className="text-[#585781]">
+                  Curated products for your modern lifestyle.
+                </p>
+              </div>
+
+              <button className="bg-surface-container-low px-4 py-2 rounded-lg text-sm font-semibold">
+                Sort by: Newest
+              </button>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-8">
+              {currentProducts.map((product) => (
+                <div
+                  key={product.id}
+                  onClick={() => navigate(`/product/${product.id}`)}
+                  className="group relative flex flex-col bg-surface-container-lowest rounded-xl overflow-hidden shadow-[0_12px_32px_rgba(43,42,81,0.06)] hover:shadow-[0_20px_48px_rgba(8,70,237,0.1)] transition-all duration-500 hover:-translate-y-1 cursor-pointer"
+                >
+                  <div className="aspect-[4/5] overflow-hidden bg-surface-container relative">
+                    <img
+                      src={product.image}
+                      className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                    />
+
+                    {product.tag && (
+                      <div
+                        className={`absolute top-4 right-4 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider ${
+                          product.tag === "Sale"
+                            ? "bg-primary text-on-primary"
+                            : "bg-white/90 backdrop-blur-md text-primary"
+                        }`}
+                      >
+                        {product.tag}
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="p-6 flex flex-col flex-grow">
+                    <h3 className="text-lg font-bold text-on-surface mb-1 group-hover:text-primary transition-colors">
+                      {product.name}
+                    </h3>
+
+                    <p className="text-on-surface-variant text-sm mb-4">
+                      {product.desc}
+                    </p>
+
+                    <div className="mt-auto flex items-center justify-between">
+                      <span className="text-xl font-black text-on-surface">
+                        {product.price}
+                      </span>
+
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          addToCart(product);
+                        }}
+                        className="bg-gradient-to-br from-primary to-primary-container text-on-primary p-3 rounded-xl shadow-lg hover:shadow-primary/40 active:scale-95 transition-all duration-300"
+                      >
+                        <span className="material-symbols-outlined">
+                          add_shopping_cart
+                        </span>
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </section>
+        </div>
+        {/* Pagination */}
+        <section>
+          <div className="mt-20 flex justify-center items-center gap-4">
+            <button
+              onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+              className="p-2 rounded-lg border border-outline-variant/30 text-on-surface-variant hover:bg-surface-container-low transition-colors"
+            >
+              <span className="material-symbols-outlined">chevron_left</span>
+            </button>
+
+            <div className="flex gap-2">
+              {[...Array(totalPages)].map((_, i) => (
+                <button
+                  key={i}
+                  onClick={() => setCurrentPage(i + 1)}
+                  className={`w-10 h-10 rounded-lg font-semibold ${
+                    currentPage === i + 1
+                      ? "bg-primary text-on-primary"
+                      : "hover:bg-surface-container-high"
+                  }`}
+                >
+                  {i + 1}
+                </button>
+              ))}
+            </div>
+
+            <button
+              onClick={() =>
+                setCurrentPage((prev) => Math.min(prev + 1, totalPages))
+              }
+              className="p-2 rounded-lg border border-outline-variant/30 text-on-surface-variant hover:bg-surface-container-low transition-colors"
+            >
+              <span className="material-symbols-outlined">chevron_right</span>
+            </button>
+          </div>
+        </section>
+      </main>
+
+      {/* Footer */}
+      <footer className="w-full py-12 px-6 mt-auto border-t border-[#aba9d7]/15 bg-[#f9f5ff]">
+        <div className="flex flex-col md:flex-row justify-between items-center gap-6 max-w-7xl mx-auto">
+          <div className="font-['Manrope'] font-bold text-[#0846ed] text-xl">
+            ShopLite
+          </div>
+
+          <div className="flex flex-wrap justify-center gap-8">
+            <a className="text-xs uppercase tracking-widest text-[#2b2a51]/60 hover:text-[#0846ed] underline underline-offset-4 transition">
+              Privacy Policy
+            </a>
+            <a className="text-xs uppercase tracking-widest text-[#2b2a51]/60 hover:text-[#0846ed] underline underline-offset-4 transition">
+              Terms of Service
+            </a>
+            <a className="text-xs uppercase tracking-widest text-[#2b2a51]/60 hover:text-[#0846ed] underline underline-offset-4 transition">
+              Support
+            </a>
+          </div>
+
+          <div className="text-xs uppercase tracking-widest text-[#2b2a51]/60 text-center md:text-right">
+            © 2024 ShopLite Luminous Editorial. All rights reserved.
+          </div>
+        </div>
+      </footer>
+    </div>
+  );
+};
+
+export default Home;
