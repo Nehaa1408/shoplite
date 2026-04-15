@@ -9,6 +9,9 @@ export const CartProvider = ({ children }) => {
     const saved = localStorage.getItem("cart");
     return saved ? JSON.parse(saved) : [];
   });
+  const clearCart = () => {
+    setCart([]);
+  };
   useEffect(() => {
     localStorage.setItem("cart", JSON.stringify(cart));
   }, [cart]);
@@ -21,12 +24,12 @@ export const CartProvider = ({ children }) => {
       if (existing) {
         return prev.map((item) =>
           item.id === product.id
-            ? { ...item, quantity: item.quantity + 1 } // ✅ fixed
+            ? { ...item, quantity: item.quantity + 1 }
             : item,
         );
       }
 
-      return [...prev, { ...product, quantity: 1 }]; // ✅ fixed
+      return [...prev, { ...product, quantity: 1 }];
     });
   };
 
@@ -66,6 +69,7 @@ export const CartProvider = ({ children }) => {
         removeFromCart,
         increaseQty,
         decreaseQty,
+        clearCart,
       }}
     >
       {children}

@@ -114,7 +114,10 @@ const Cart = () => {
               </span>
             </div>
 
-            <button className="w-full bg-primary text-white py-3 rounded-xl">
+            <button
+              onClick={() => navigate("/checkout")}
+              className="w-full bg-primary text-white py-3 rounded-xl"
+            >
               Proceed to Checkout
             </button>
 
@@ -124,6 +127,38 @@ const Cart = () => {
             >
               Continue Shopping
             </button>
+            <div className="mt-6 space-y-3">
+              {/* Secure Payment */}
+              <div className="flex items-center gap-3 bg-[#f2f1ff] p-3 rounded-lg">
+                <span className="material-symbols-outlined text-primary">
+                  verified
+                </span>
+                <p className="text-sm font-medium">
+                  Secure SSL Encrypted Payment
+                </p>
+              </div>
+
+              {/* Free Shipping */}
+              <div className="flex items-center gap-3 bg-[#f2f1ff] p-3 rounded-lg">
+                <span className="material-symbols-outlined text-primary">
+                  local_shipping
+                </span>
+                <p className="text-sm font-medium">
+                  Free Express Shipping on this order
+                </p>
+              </div>
+
+              {/* Terms */}
+              <p className="text-xs text-center text-on-surface-variant mt-2">
+                By proceeding, you agree to ShopLite's{" "}
+                <span className="underline cursor-pointer">
+                  Terms of Service
+                </span>{" "}
+                and{" "}
+                <span className="underline cursor-pointer">Privacy Policy</span>
+                .
+              </p>
+            </div>
           </div>
         </div>
       </div>

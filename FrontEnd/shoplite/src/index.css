@@ -39,6 +39,12 @@ h1, h2, h3 {
   width: 6px;
 }
 
+
+.bg-glow {
+  background: radial-gradient(circle at 0% 0%, #dcd9ff 0%, transparent 40%),
+              radial-gradient(circle at 100% 100%, #859aff 0%, transparent 40%);
+}
+
 ::-webkit-scrollbar-thumb {
   background: #dcd9ff;
   border-radius: 10px;

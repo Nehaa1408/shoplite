@@ -44,16 +44,6 @@ const Categories = () => {
               >
                 <span className="material-symbols-outlined">home</span>
               </button>
-
-              <button onClick={() => navigate("/cart")}>
-                <span className="material-symbols-outlined">shopping_cart</span>
-              </button>
-
-              <button>
-                <span className="material-symbols-outlined">
-                  account_circle
-                </span>
-              </button>
             </div>
           </div>
         </div>

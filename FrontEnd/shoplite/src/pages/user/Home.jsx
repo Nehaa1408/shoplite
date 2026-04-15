@@ -4,12 +4,7 @@ import { useNavigate } from "react-router-dom";
 const Home = () => {
   const navigate = useNavigate();
   const { addToCart, cart } = useCart();
-
-  const [filters, setFilters] = React.useState({
-    category: "",
-    price: "",
-    brand: "",
-  });
+  const [searchTerm, setSearchTerm] = React.useState("");
 
   const [currentPage, setCurrentPage] = React.useState(1);
   const productsPerPage = 6;
@@ -84,31 +79,21 @@ const Home = () => {
         "https://lh3.googleusercontent.com/aida-public/AB6AXuC7r0sWFGk8RC9zuXaym9yXUZ0EtJYA3xFjXL_dr_WZUdou7CT3-WpsR-ZYNsV7Yvk4hmN_GtX3z_qKD6jWu8i96HSy3yedbxP7G54G6_LgpmcR_YvzdsKXW06dZNp1zgE6XW8xvRdUWNp95u5P2GtpOx-rDF7w9fTCgelm6wRvyKdbnMnHL2y3djurHOyd8f05sP1sIaGuTe7oWZC80oBu9aaMApko_kHFowc5LlcX44rRAfwpg4AkJrirHDlHkT1eWyeXp7hg1CA",
     },
   ];
-
   const filteredProducts = products.filter((product) => {
+    if (!searchTerm) return true;
+
     return (
-      (filters.category === "" || product.category === filters.category) &&
-      (filters.brand === "" || product.brand === filters.brand) &&
-      (filters.price === "" ||
-        (filters.price === "low" && product.priceValue < 150) ||
-        (filters.price === "high" && product.priceValue >= 150))
+      product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      product.desc.toLowerCase().includes(searchTerm.toLowerCase())
     );
   });
-
   const startIndex = (currentPage - 1) * productsPerPage;
   const currentProducts = filteredProducts.slice(
     startIndex,
     startIndex + productsPerPage,
   );
-  const totalPages = Math.ceil(filteredProducts.length / productsPerPage);
 
-  const toggleFilter = (type, value) => {
-    setFilters((prev) => ({
-      ...prev,
-      [type]: prev[type] === value ? "" : value,
-    }));
-    setCurrentPage(1);
-  };
+  const totalPages = Math.ceil(filteredProducts.length / productsPerPage);
 
   return (
     <div className="bg-surface text-on-background min-h-screen flex flex-col glow-bg">
@@ -120,6 +105,11 @@ const Home = () => {
 
         <div className="hidden md:flex flex-1 max-w-xl mx-8 relative">
           <input
+            value={searchTerm}
+            onChange={(e) => {
+              setSearchTerm(e.target.value);
+              setCurrentPage(1);
+            }}
             className="w-full bg-surface-container-highest/40 border-none rounded-sm px-10 py-2 text-sm focus:ring-2 focus:ring-primary-fixed-dim/30 focus:bg-surface-container-lowest transition-all"
             placeholder="Search products..."
           />
@@ -142,7 +132,15 @@ const Home = () => {
             )}
           </button>
           <button
-            onClick={() => navigate("/profile")}
+            onClick={() => {
+              const isLoggedIn = localStorage.getItem("userAuth");
+
+              if (isLoggedIn) {
+                navigate("/profile"); 
+              } else {
+                navigate("/login"); 
+              }
+            }}
             className="p-2 rounded-lg text-[#2b2a51] opacity-70 hover:bg-[#f2f1ff] transition"
           >
             <span className="material-symbols-outlined">account_circle</span>
@@ -151,57 +149,65 @@ const Home = () => {
       </nav>
 
       {/* Main */}
-      <main className="flex-grow pt-16 flex max-w-[1920px] mx-auto w-full">
+      <main className="flex-grow pt-16 flex  w-full">
         {/* Sidebar */}
         <aside className="hidden lg:flex flex-col gap-y-2 p-6 h-screen w-64 fixed left-0 border-r border-[#aba9d7]/15 bg-[#f9f5ff] pt-20">
+          {/* Title */}
           <div className="mb-6">
             <h2 className="text-[#0846ed] text-lg font-bold font-['Manrope']">
-              Filters
+              Explore
             </h2>
-            <p className="text-sm text-[#2b2a51]/60">Refine your selection</p>
+            <p className="text-sm text-[#2b2a51]/60">
+              Navigate through ShopLite
+            </p>
           </div>
 
+          {/* Navigation */}
           <nav className="space-y-1">
-            <a
+            {/* Home */}
+            <div
+              onClick={() => navigate("/")}
+              className="flex items-center gap-3 p-3 hover:text-[#0846ed] hover:bg-[#f2f1ff] transition cursor-pointer rounded-lg"
+            >
+              <span className="material-symbols-outlined">home</span>
+              Home
+            </div>
+
+            {/* Categories */}
+            <div
               onClick={() => navigate("/categories")}
-              className="flex items-center gap-3 p-3 hover:text-[#0846ed] hover:bg-[#f2f1ff] transition cursor-pointer"
+              className="flex items-center gap-3 p-3 hover:text-[#0846ed] hover:bg-[#f2f1ff] transition cursor-pointer rounded-lg"
             >
               <span className="material-symbols-outlined">category</span>
               Categories
-            </a>
+            </div>
 
-            <a className="flex items-center gap-3 p-3 bg-white text-[#0846ed] rounded-lg shadow-sm font-semibold">
-              <span className="material-symbols-outlined">payments</span>
-              Price Range
-            </a>
-
-            <a
+            {/* Brands */}
+            <div
               onClick={() => navigate("/brands")}
-              className="flex items-center gap-3 p-3 hover:text-[#0846ed] hover:bg-[#f2f1ff] transition cursor-pointer"
+              className="flex items-center gap-3 p-3 hover:text-[#0846ed] hover:bg-[#f2f1ff] transition cursor-pointer rounded-lg"
             >
               <span className="material-symbols-outlined">loyalty</span>
               Brands
-            </a>
+            </div>
 
-            <a 
-            onClick={() => navigate("/top-deals")}
-            className="flex items-center gap-3 p-3 hover:text-[#0846ed] hover:bg-[#f2f1ff] transition">
+            {/* Top Deals */}
+            <div
+              onClick={() => navigate("/top-deals")}
+              className="flex items-center gap-3 p-3 hover:text-[#0846ed] hover:bg-[#f2f1ff] transition cursor-pointer rounded-lg"
+            >
               <span className="material-symbols-outlined">stars</span>
               Top Deals
-            </a>
+            </div>
+            {/* Order History */}
+            <div
+              onClick={() => navigate("/orders")}
+              className="flex items-center gap-3 p-3 hover:text-[#0846ed] hover:bg-[#f2f1ff] transition cursor-pointer rounded-lg"
+            >
+              <span className="material-symbols-outlined">receipt_long</span>
+              Order History
+            </div>
           </nav>
-
-          <button
-            onClick={() =>
-              setFilters({
-                category: "",
-                price: "",
-                brand: "",
-                topdeals: "",
-              })
-            }
-            className="mt-auto py-2 text-xs font-bold text-[#0846ed] border rounded-lg"
-          ></button>
         </aside>
 
         {/* RIGHT SIDE CONTENT */}
@@ -358,25 +364,25 @@ const Home = () => {
       </main>
 
       {/* Footer */}
-      <footer className="w-full py-12 px-6 mt-auto border-t border-[#aba9d7]/15 bg-[#f9f5ff]">
-        <div className="flex flex-col md:flex-row justify-between items-center gap-6 max-w-7xl mx-auto">
-          <div className="font-['Manrope'] font-bold text-[#0846ed] text-xl">
+      <footer className="w-full py-10 border-t border-[#aba9d7]/15 bg-[#f9f5ff]">
+        <div className="lg:ml-64 px-6 flex flex-col md:flex-row justify-between items-center gap-3">
+          <div className="font-['Manrope'] font-bold text-[#0846ed] text-lg">
             ShopLite
           </div>
 
-          <div className="flex flex-wrap justify-center gap-8">
-            <a className="text-xs uppercase tracking-widest text-[#2b2a51]/60 hover:text-[#0846ed] underline underline-offset-4 transition">
+          <div className="flex flex-wrap justify-center gap-4">
+            <a className="text-xs uppercase tracking-wide text-[#2b2a51]/60 hover:text-[#0846ed] underline underline-offset-4 transition">
               Privacy Policy
             </a>
-            <a className="text-xs uppercase tracking-widest text-[#2b2a51]/60 hover:text-[#0846ed] underline underline-offset-4 transition">
+            <a className="text-xs uppercase tracking-wide text-[#2b2a51]/60 hover:text-[#0846ed] underline underline-offset-4 transition">
               Terms of Service
             </a>
-            <a className="text-xs uppercase tracking-widest text-[#2b2a51]/60 hover:text-[#0846ed] underline underline-offset-4 transition">
+            <a className="text-xs uppercase tracking-wide text-[#2b2a51]/60 hover:text-[#0846ed] underline underline-offset-4 transition">
               Support
             </a>
           </div>
 
-          <div className="text-xs uppercase tracking-widest text-[#2b2a51]/60 text-center md:text-right">
+          <div className="text-xs uppercase tracking-wide text-[#2b2a51]/60 text-center md:text-right">
             © 2024 ShopLite Luminous Editorial. All rights reserved.
           </div>
         </div>

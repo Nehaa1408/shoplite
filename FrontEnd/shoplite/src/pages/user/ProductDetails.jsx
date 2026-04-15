@@ -1,4 +1,6 @@
 import React, { useState } from "react";
+import { useCart } from "../../context/CartContext";
+import { useNavigate } from "react-router-dom";
 
 const ProductDetails = () => {
   const images = [
@@ -10,6 +12,16 @@ const ProductDetails = () => {
 
   const [mainImage, setMainImage] = useState(images[0]);
   const [qty, setQty] = useState(1);
+  const product = {
+    id: 1,
+    name: "Aura-9 Wireless Noise-Cancelling Headphones",
+    price: "$349.00",
+    priceValue: 349,
+    image: mainImage,
+    quantity: qty,
+  };
+  const navigate = useNavigate();
+  const { cart, addToCart } = useCart();
 
   return (
     <div className="bg-surface text-on-background min-h-screen">
@@ -28,12 +40,20 @@ const ProductDetails = () => {
           </div>
 
           <div className="flex gap-4">
-            <span className="material-symbols-outlined cursor-pointer">
-              shopping_cart
-            </span>
-            <span className="material-symbols-outlined cursor-pointer">
-              account_circle
-            </span>
+            {/* CART */}
+            <button onClick={() => navigate("/cart")} className="relative">
+              <span className="material-symbols-outlined">shopping_cart</span>
+
+              {cart.length > 0 && (
+                <span className="absolute -top-1 -right-1 bg-primary text-white text-[10px] px-1.5 py-0.5 rounded-full">
+                  {cart.length}
+                </span>
+              )}
+            </button>
+            {/* PROFILE */}
+            <button onClick={() => navigate("/profile")}>
+              <span className="material-symbols-outlined">account_circle</span>
+            </button>
           </div>
         </div>
       </nav>
@@ -120,8 +140,9 @@ const ProductDetails = () => {
             {/* Buttons */}
             <div className="flex gap-4 pt-2">
               <button
+                onClick={() => addToCart(product)}
                 className="flex-1 py-5 rounded-xl text-white font-bold
-                bg-gradient-to-r from-blue-600 to-blue-400 shadow-lg hover:scale-[0.98] transition"
+  bg-gradient-to-r from-blue-600 to-blue-400 shadow-lg hover:scale-[0.98] transition"
               >
                 Add to Cart
               </button>
