@@ -3,9 +3,10 @@ package com.ecommerce.shoplite.controller;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import com.ecommerce.shoplite.entity.Cart;
+import com.ecommerce.shoplite.dto.CartResponse;
 import com.ecommerce.shoplite.repository.UserRepository;
 import com.ecommerce.shoplite.security.JwtUtil;
 import com.ecommerce.shoplite.service.CartService;
@@ -33,49 +34,52 @@ public class CartController {
                 .getId();
     }
 
-    
     @PostMapping("/add")
-    public Cart addToCart(@RequestParam Long productId,
-                         @RequestHeader("Authorization") String token) {
+    public ResponseEntity<CartResponse> addToCart(
+            @RequestParam Long productId,
+            @RequestHeader("Authorization") String token) {
 
         Long userId = getUserIdFromToken(token);
-        return cartService.addItem(userId, productId);
+        return ResponseEntity.ok(cartService.addItem(userId, productId));
     }
 
- 
     @GetMapping
-    public List<Cart> getCart(@RequestHeader("Authorization") String token) {
+    public ResponseEntity<List<CartResponse>> getCart(
+            @RequestHeader("Authorization") String token) {
 
         Long userId = getUserIdFromToken(token);
-        return cartService.getCart(userId);
+        return ResponseEntity.ok(cartService.getCart(userId));
     }
 
-    
     @PutMapping("/update")
-    public Cart updateQuantity(@RequestParam Long productId,
-                              @RequestParam int quantity,
-                              @RequestHeader("Authorization") String token) {
+    public ResponseEntity<CartResponse> updateQuantity(
+            @RequestParam Long productId,
+            @RequestParam int quantity,
+            @RequestHeader("Authorization") String token) {
 
         Long userId = getUserIdFromToken(token);
-        return cartService.updateQuantity(userId, productId, quantity);
+        return ResponseEntity.ok(
+                cartService.updateQuantity(userId, productId, quantity));
     }
 
-   
     @DeleteMapping("/remove")
-    public String removeItem(@RequestParam Long productId,
-                            @RequestHeader("Authorization") String token) {
+    public ResponseEntity<String> removeItem(
+            @RequestParam Long productId,
+            @RequestHeader("Authorization") String token) {
 
         Long userId = getUserIdFromToken(token);
         cartService.removeItem(userId, productId);
-        return "Item removed";
+
+        return ResponseEntity.ok("Item removed");
     }
 
-    
     @DeleteMapping("/clear")
-    public String clearCart(@RequestHeader("Authorization") String token) {
+    public ResponseEntity<String> clearCart(
+            @RequestHeader("Authorization") String token) {
 
         Long userId = getUserIdFromToken(token);
         cartService.clearCart(userId);
-        return "Cart cleared";
+
+        return ResponseEntity.ok("Cart cleared");
     }
 }

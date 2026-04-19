@@ -6,8 +6,7 @@ import lombok.*;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class CartResponse {
-    private Long productId;
+public class OrderItemResponse {
     private String productName;
     private double price;
     private int quantity;

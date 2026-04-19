@@ -11,30 +11,32 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
+import com.ecommerce.shoplite.entity.User;
 import com.ecommerce.shoplite.repository.UserRepository;
 
 import java.io.IOException;
+import java.util.List;
 
 @Component
 public class JwtFilter extends OncePerRequestFilter {
 
     @Autowired
     private JwtUtil jwtUtil;
+
     @Autowired
     private UserRepository userRepository;
 
     @Override
-
     protected void doFilterInternal(
             @org.springframework.lang.NonNull HttpServletRequest request,
             @org.springframework.lang.NonNull HttpServletResponse response,
             @org.springframework.lang.NonNull FilterChain filterChain)
             throws ServletException, IOException {
+
         System.out.println("JWT FILTER HIT");
 
         String path = request.getRequestURI();
 
-        // Skip only auth endpoints
         if (path.startsWith("/api/auth")) {
             filterChain.doFilter(request, response);
             return;
@@ -51,14 +53,14 @@ public class JwtFilter extends OncePerRequestFilter {
 
                 if (email != null && SecurityContextHolder.getContext().getAuthentication() == null) {
 
-                    com.ecommerce.shoplite.entity.User user = userRepository.findByEmail(email).orElse(null);
+                    User user = userRepository.findByEmail(email).orElse(null);
 
                     if (user != null) {
 
                         UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
-                                email,
+                                user,
                                 null,
-                                java.util.List.of(
+                                List.of(
                                         new org.springframework.security.core.authority.SimpleGrantedAuthority(
                                                 "ROLE_" + user.getRole().name())));
 

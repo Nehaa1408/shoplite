@@ -1,10 +1,12 @@
 package com.ecommerce.shoplite.service;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.ecommerce.shoplite.dto.CartResponse;
 import com.ecommerce.shoplite.entity.Cart;
 import com.ecommerce.shoplite.entity.Product;
 import com.ecommerce.shoplite.entity.User;
@@ -24,7 +26,7 @@ public class CartService {
     @Autowired
     private ProductRepository productRepository;
 
-    public Cart addItem(Long userId, Long productId) {
+    public CartResponse addItem(Long userId, Long productId) {
 
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("User not found"));
@@ -37,7 +39,7 @@ public class CartService {
         for (Cart item : userCart) {
             if (item.getProduct().getId().equals(productId)) {
                 item.setQuantity(item.getQuantity() + 1);
-                return cartRepository.save(item);
+                return mapToDTO(cartRepository.save(item));
             }
         }
 
@@ -46,18 +48,26 @@ public class CartService {
         cart.setProduct(product);
         cart.setQuantity(1);
 
-        return cartRepository.save(cart);
+        return mapToDTO(cartRepository.save(cart));
     }
 
-    public List<Cart> getCart(Long userId) {
+    public List<CartResponse> getCart(Long userId) {
 
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
-        return cartRepository.findByUser(user);
+        List<Cart> cartItems = cartRepository.findByUser(user);
+
+        List<CartResponse> response = new ArrayList<>();
+
+        for (Cart item : cartItems) {
+            response.add(mapToDTO(item));
+        }
+
+        return response;
     }
 
-    public Cart updateQuantity(Long userId, Long productId, int quantity) {
+    public CartResponse updateQuantity(Long userId, Long productId, int quantity) {
 
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("User not found"));
@@ -67,7 +77,7 @@ public class CartService {
         for (Cart item : userCart) {
             if (item.getProduct().getId().equals(productId)) {
                 item.setQuantity(quantity);
-                return cartRepository.save(item);
+                return mapToDTO(cartRepository.save(item));
             }
         }
 
@@ -88,5 +98,14 @@ public class CartService {
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
         cartRepository.deleteByUser(user);
+    }
+
+    private CartResponse mapToDTO(Cart item) {
+        CartResponse dto = new CartResponse();
+        dto.setProductId(item.getProduct().getId());
+        dto.setProductName(item.getProduct().getName());
+        dto.setPrice(item.getProduct().getPrice());
+        dto.setQuantity(item.getQuantity());
+        return dto;
     }
 }
