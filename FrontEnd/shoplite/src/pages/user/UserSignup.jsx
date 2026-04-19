@@ -5,6 +5,7 @@ const UserSignup = () => {
   const navigate = useNavigate();
   const handleSignup = (e) => {
     e.preventDefault();
+    localStorage.setItem("userAuth", "true");
 
     navigate("/");
   };

@@ -19,6 +19,9 @@ import ManageOrders from "./pages/admin/ManageOrders";
 import AdminSignup from "./pages/admin/AdminSignup";
 import AdminLogin from "./pages/admin/AdminLogin";
 import Profile from "./pages/user/Profile";
+import TicketManagement from "./pages/user/TicketManagement";
+import AdminTickets from "./pages/admin/AdminTickets";
+import AdminTicketDetails from "./pages/admin/AdminTicketDetails";
 
 
 
@@ -29,7 +32,7 @@ function App() {
       <Routes>
         {/* USER */}
         <Route path="/" element={<Home />} />
-        <Route path="/profile" element={<Profile/>}/>
+        <Route path="/profile" element={<Profile />} />
         <Route path="/login" element={<UserLogin />} />
         <Route path="/signup" element={<UserSignup />} />
         <Route path="/product/:id" element={<ProductDetails />} />
@@ -41,13 +44,17 @@ function App() {
         <Route path="/order-success" element={<OrderConfirmation />} />
         <Route path="/order-tracking" element={<OrderTracking />} />
         <Route path="/orders" element={<OrderHistory />} />
+        <Route path="/tickets" element={<TicketManagement />} />
         {/* ADMIN */}
-        <Route path="/admin" element={<AdminDashboard/>} />
+        <Route path="/admin" element={<AdminDashboard />} />
+        <Route path="/admin/tickets" element={<AdminTickets />} />        
         <Route path="/admin/products" element={<ManageProducts />} />
         <Route path="/admin/add-product" element={<AddProduct />} />
         <Route path="/manage-orders" element={<ManageOrders />} />
         <Route path="/admin/signup" element={<AdminSignup />} />
         <Route path="/admin/login" element={<AdminLogin />} />
+        <Route path="/admin/ticket/:id" element={<AdminTicketDetails />} />
+
       </Routes>
     </BrowserRouter>
   );

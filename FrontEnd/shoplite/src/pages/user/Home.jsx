@@ -136,9 +136,9 @@ const Home = () => {
               const isLoggedIn = localStorage.getItem("userAuth");
 
               if (isLoggedIn) {
-                navigate("/profile"); 
+                navigate("/profile");
               } else {
-                navigate("/login"); 
+                navigate("/login");
               }
             }}
             className="p-2 rounded-lg text-[#2b2a51] opacity-70 hover:bg-[#f2f1ff] transition"
@@ -206,6 +206,15 @@ const Home = () => {
             >
               <span className="material-symbols-outlined">receipt_long</span>
               Order History
+            </div>
+            <div
+              onClick={() => navigate("/tickets")}
+              className="flex items-center gap-3 p-3 hover:text-[#0846ed] hover:bg-[#f2f1ff] transition cursor-pointer rounded-lg"
+            >
+              <span className="material-symbols-outlined">
+                confirmation_number
+              </span>
+              Ticket Management
             </div>
           </nav>
         </aside>

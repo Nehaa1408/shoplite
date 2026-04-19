@@ -48,11 +48,10 @@ const AddProduct = () => {
             <div
               onClick={() => navigate("/admin")}
               className={`flex items-center gap-3 px-4 py-3 rounded-lg cursor-pointer transition
-               ${
-                 isActive("/admin")
-                   ? "bg-gradient-to-r from-primary to-primary-container text-white shadow-lg"
-                   : "hover:bg-surface-container"
-               }`}
+               ${isActive("/admin")
+                  ? "bg-gradient-to-r from-primary to-primary-container text-white shadow-lg"
+                  : "hover:bg-surface-container"
+                }`}
             >
               <span className="material-symbols-outlined">dashboard</span>
               Dashboard
@@ -71,6 +70,20 @@ const AddProduct = () => {
           <div className="px-4 py-3 flex items-center gap-3 bg-white text-primary font-bold rounded-lg shadow">
             <span className="material-symbols-outlined">add_box</span>
             Add Product
+          </div>
+          {/* Tickets */}
+          <div
+            onClick={() => navigate("/admin/tickets")}
+            className={`flex items-center gap-3 px-4 py-3 rounded-lg cursor-pointer transition
+  ${isActive("/admin/tickets")
+                ? "bg-gradient-to-r from-primary to-primary-container text-white shadow-lg"
+                : "hover:bg-surface-container"
+              }`}
+          >
+            <span className="material-symbols-outlined">
+              confirmation_number
+            </span>
+            Tickets
           </div>
 
           <div
