@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-
+import { useCart } from "../../context/CartContext";
 const steps = [
   { key: "placed", label: "Order Placed", icon: "inventory_2" },
   { key: "packed", label: "Packed", icon: "package_2" },
@@ -9,17 +9,18 @@ const steps = [
 ];
 
 const OrderTracking = () => {
+  const { clearCart } = useCart();
   const location = useLocation();
   const navigate = useNavigate();
 
-  const {
-    items = [],
-    orderId,
-    orderDate,
-    subtotal = 0,
-    tax = 0,
-    total = 0,
-  } = location.state || {};
+  const order = location.state;
+  const subtotal = order.items.reduce(
+    (sum, item) => sum + item.price * item.quantity,
+    0
+  );
+
+  const tax = subtotal * 0.04;
+  const total = subtotal + tax;
 
   const [statusIndex, setStatusIndex] = useState(0);
 
@@ -33,7 +34,7 @@ const OrderTracking = () => {
     return () => clearInterval(interval);
   }, []);
 
-  if (items.length === 0) {
+  if (!order || order.items.length === 0) {
     return (
       <div className="h-screen flex items-center justify-center">
         <p className="text-lg font-bold">
@@ -60,7 +61,7 @@ const OrderTracking = () => {
           <div>
             <h1 className="text-3xl font-extrabold mb-2">Track Your Journey</h1>
             <p className="text-on-surface-variant">
-              Order <span className="text-primary font-bold">#{orderId}</span>{" "}
+              Order <span className="text-primary font-bold">#{order.orderId}</span>{" "}
               is making its way to you.
             </p>
           </div>
@@ -69,7 +70,7 @@ const OrderTracking = () => {
             <p className="text-xs font-bold uppercase text-gray-500">
               Order Placed
             </p>
-            <p className="font-bold">{orderDate}</p>
+            <p className="font-bold">{order.orderDate}</p>
           </div>
         </div>
 
@@ -137,13 +138,12 @@ const OrderTracking = () => {
                   className="flex flex-col items-center gap-3 relative z-10"
                 >
                   <div
-                    className={`w-12 h-12 rounded-full flex items-center justify-center ${
-                      isCompleted
-                        ? "bg-primary text-white"
-                        : isActive
-                          ? "border-2 border-primary text-primary bg-white"
-                          : "bg-gray-200 text-gray-400"
-                    }`}
+                    className={`w-12 h-12 rounded-full flex items-center justify-center ${isCompleted
+                      ? "bg-primary text-white"
+                      : isActive
+                        ? "border-2 border-primary text-primary bg-white"
+                        : "bg-gray-200 text-gray-400"
+                      }`}
                   >
                     <span className="material-symbols-outlined">
                       {step.icon}
@@ -151,9 +151,8 @@ const OrderTracking = () => {
                   </div>
 
                   <p
-                    className={`text-xs font-bold ${
-                      isActive ? "text-primary" : "text-gray-500"
-                    }`}
+                    className={`text-xs font-bold ${isActive ? "text-primary" : "text-gray-500"
+                      }`}
                   >
                     {step.label}
                   </p>
@@ -165,9 +164,9 @@ const OrderTracking = () => {
 
         {/* ITEMS */}
         <div className="flex flex-col gap-4">
-          {items.map((item) => (
+          {order.items.map((item, index) => (
             <div
-              key={item.id}
+              key={index}
               className="glass-panel border p-5 rounded-2xl flex items-center gap-6 hover:shadow-md transition"
             >
               <div className="w-20 h-20 rounded-xl overflow-hidden bg-surface-container-low">
@@ -175,13 +174,13 @@ const OrderTracking = () => {
               </div>
 
               <div className="flex-grow">
-                <h3 className="font-bold">{item.name}</h3>
+                <h3 className="font-bold">{item.productName}</h3>
                 <p className="text-xs text-gray-500">Qty: {item.quantity}</p>
               </div>
 
               <div className="text-right">
                 <p className="text-sm font-bold">
-                  ${(item.priceValue * item.quantity).toFixed(2)}
+                  ${(item.price * item.quantity).toFixed(2)}
                 </p>
               </div>
             </div>
@@ -191,7 +190,10 @@ const OrderTracking = () => {
         {/* BUTTON */}
         <div className="flex justify-center">
           <button
-            onClick={() => navigate("/")}
+            onClick={async () => {
+              await clearCart();
+              navigate("/");
+            }}
             className="px-8 py-4 border rounded-xl text-primary font-bold flex gap-2"
           >
             <span className="material-symbols-outlined">arrow_back</span>

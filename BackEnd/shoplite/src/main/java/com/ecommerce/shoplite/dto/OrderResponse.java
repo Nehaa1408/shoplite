@@ -11,5 +11,6 @@ public class OrderResponse {
     private Long orderId;
     private double totalAmount;
     private String status;
+    private String orderDate;
     private List<OrderItemResponse> items;
 }

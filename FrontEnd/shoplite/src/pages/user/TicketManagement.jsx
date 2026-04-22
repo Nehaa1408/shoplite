@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import axios from "axios";
 
 const TicketManagement = () => {
   const navigate = useNavigate();
+  const [successMsg, setSuccessMsg] = useState("");
 
   const [tickets, setTickets] = useState([]);
   const [form, setForm] = useState({
@@ -12,20 +14,29 @@ const TicketManagement = () => {
     priority: "Low",
     description: "",
   });
+  const fetchTickets = async () => {
+    try {
+      const token = localStorage.getItem("token");
+      if (!token) return;
 
-  // 🔥 Load tickets from localStorage
+      const res = await axios.get("http://localhost:8080/tickets", {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      console.log("Tickets:", res.data);
+
+      setTickets(res.data || []);
+    } catch (err) {
+      console.error("Fetch tickets error:", err);
+    }
+  };
   useEffect(() => {
-    const stored = JSON.parse(localStorage.getItem("tickets")) || [];
-    setTickets(stored);
+    fetchTickets();
   }, []);
 
-  // 🔥 Handle input
-  const handleChange = (e) => {
-    setForm({ ...form, [e.target.name]: e.target.value });
-  };
-
-  // 🔥 Submit Ticket
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
     if (!form.subject || !form.description) {
@@ -33,43 +44,45 @@ const TicketManagement = () => {
       return;
     }
 
-    const newTicket = {
-      id: "#TKT-" + Math.floor(1000 + Math.random() * 9000),
-      ...form,
-      status: "Open",
-      date: new Date().toLocaleDateString(),
-    };
+    try {
+      const token = localStorage.getItem("token");
+      if (!token) return;
 
-    const updatedTickets = [newTicket, ...tickets];
+      await axios.post(
+        `http://localhost:8080/tickets?subject=${encodeURIComponent(form.subject)}&message=${encodeURIComponent(form.description)}`,
+        {},
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
 
-    setTickets(updatedTickets);
-    localStorage.setItem("tickets", JSON.stringify(updatedTickets));
+      setForm({
+        subject: "",
+        category: "Order Issue",
+        orderId: "",
+        priority: "Low",
+        description: "",
+      });
 
-    // Reset form
-    setForm({
-      subject: "",
-      category: "Order Issue",
-      orderId: "",
-      priority: "Low",
-      description: "",
-    });
+      fetchTickets();
+
+      setSuccessMsg("Ticket created successfully 🎉");
+
+
+      setTimeout(() => {
+        setSuccessMsg("");
+      }, 4000);
+    } catch (err) {
+      console.error("Create ticket error:", err);
+    }
   };
-
-  // 🔥 Change Status
-  const updateStatus = (index) => {
-    const updated = [...tickets];
-
-    const nextStatus =
-      updated[index].status === "Open"
-        ? "In Progress"
-        : updated[index].status === "In Progress"
-          ? "Resolved"
-          : "Open";
-
-    updated[index].status = nextStatus;
-
-    setTickets(updated);
-    localStorage.setItem("tickets", JSON.stringify(updated));
+  const handleChange = (e) => {
+    setForm({
+      ...form,
+      [e.target.name]: e.target.value,
+    });
   };
 
   return (
@@ -97,7 +110,14 @@ const TicketManagement = () => {
           <h1 className="text-4xl font-extrabold mb-3">How can we help?</h1>
           <p className="text-gray-500">Submit a ticket and track its status.</p>
         </div>
-
+        {successMsg && (
+          <div className="mb-6 flex items-center gap-3 p-4 rounded-xl bg-green-50 border border-green-200 text-green-700 shadow-lg animate-[fadeIn_0.4s_ease]">
+            <span className="material-symbols-outlined text-green-600">
+              check_circle
+            </span>
+            <span className="font-semibold">{successMsg}</span>
+          </div>
+        )}
         {/* FORM */}
         <div className="bg-white/80 backdrop-blur-xl p-8 rounded-3xl shadow hover:shadow-xl transition">
           <form className="space-y-6" onSubmit={handleSubmit}>
@@ -139,11 +159,10 @@ const TicketManagement = () => {
                     type="button"
                     key={p}
                     onClick={() => setForm({ ...form, priority: p })}
-                    className={`flex-1 py-3 rounded-lg transition ${
-                      form.priority === p
-                        ? "bg-blue-600 text-white scale-105"
-                        : "bg-gray-100 hover:bg-blue-100"
-                    }`}
+                    className={`flex-1 py-3 rounded-lg transition ${form.priority === p
+                      ? "bg-blue-600 text-white scale-105"
+                      : "bg-gray-100 hover:bg-blue-100"
+                      }`}
                   >
                     {p}
                   </button>
@@ -176,47 +195,43 @@ const TicketManagement = () => {
             <p className="text-gray-500 text-center">No tickets yet</p>
           ) : (
             <div className="grid md:grid-cols-2 gap-6">
-              {tickets.map((ticket, index) => (
-                <div
-                  key={index}
-                  onClick={() => updateStatus(index)}
-                  className="bg-white p-6 rounded-2xl shadow hover:-translate-y-1 hover:shadow-lg transition cursor-pointer animate-[fadeInUp_0.4s_ease]"
-                >
-                  <div className="flex justify-between mb-2">
-                    <span className="text-xs">{ticket.id}</span>
+              {tickets.map((ticket) => {
+                const status = (ticket.status || "").toUpperCase();
 
-                    <span
-                      className={`text-xs font-bold px-2 py-1 rounded ${
-                        ticket.status === "Resolved"
+                return (
+                  <div
+                    key={ticket.id}
+                    className="bg-white p-6 rounded-2xl shadow hover:-translate-y-1 hover:shadow-lg transition animate-[fadeInUp_0.4s_ease]"
+                  >
+                    <div className="flex justify-between mb-2">
+                      <span className="text-xs">{ticket.id}</span>
+
+                      <span
+                        className={`text-xs font-bold px-2 py-1 rounded ${status === "RESOLVED"
                           ? "bg-green-100 text-green-700"
-                          : ticket.status === "In Progress"
+                          : status === "IN_PROGRESS"
                             ? "bg-blue-100 text-blue-700"
                             : "bg-yellow-100 text-yellow-700"
-                      }`}
-                    >
-                      {ticket.status}
-                    </span>
+                          }`}
+                      >
+                        {status === "IN_PROGRESS" ? "In Progress" : status}
+                      </span>
+                    </div>
+
+                    <h3 className="font-bold mb-1">{ticket.subject}</h3>
+
+                    <p className="text-xs text-gray-500 mb-2">
+                      Support Ticket
+                    </p>
                   </div>
-
-                  <h3 className="font-bold mb-1">{ticket.subject}</h3>
-
-                  <p className="text-xs text-gray-500 mb-2">
-                    {ticket.category} • {ticket.priority}
-                  </p>
-
-                  <p className="text-xs text-gray-400">{ticket.date}</p>
-
-                  <p className="text-[10px] text-gray-400 mt-2">
-                    Click to change status →
-                  </p>
-                </div>
-              ))}
+                );
+              })}
             </div>
           )}
         </div>
       </main>
 
-      {/* 🔥 CUSTOM ANIMATIONS */}
+
       <style>
         {`
         @keyframes fadeIn {

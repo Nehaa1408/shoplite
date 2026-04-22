@@ -1,13 +1,29 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-
+import axios from "axios";
 const OrderHistory = () => {
   const navigate = useNavigate();
   const [orders, setOrders] = useState([]);
   useEffect(() => {
-    const storedOrders = JSON.parse(localStorage.getItem("orders")) || [];
-    setOrders(storedOrders);
+    const fetchOrders = async () => {
+      try {
+        const token = localStorage.getItem("token");
+
+        const res = await axios.get("http://localhost:8080/orders", {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        setOrders(res.data);
+      } catch (err) {
+        console.error("Fetch orders error:", err);
+      }
+    };
+
+    fetchOrders();
   }, []);
+
   return (
     <div className="bg-surface text-on-surface font-body min-h-screen">
       {/* Navbar */}
@@ -57,58 +73,71 @@ const OrderHistory = () => {
               <p className="text-center text-gray-500">No orders yet.</p>
             )}
 
-            {orders.map((order) => (
-              <div
-                key={order.id}
-                className="bg-white/80 backdrop-blur-xl p-6 rounded-xl shadow-lg"
-              >
-                <div className="flex justify-between mb-6">
-                  <div>
-                    <p className="text-xs text-gray-500">Order ID</p>
-                    <p className="font-bold">{order.id}</p>
+            {orders.map((order, index) => {
+              const items = order.items || [];
+
+              const subtotal = items.reduce(
+                (sum, item) => sum + item.price * item.quantity,
+                0
+              );
+
+              const tax = subtotal * 0.04;
+              const total = subtotal + tax;
+
+              return (
+                <div key={index} className="bg-white/80 backdrop-blur-xl p-6 rounded-xl shadow-lg">
+
+                  <div className="flex justify-between mb-6">
+                    <div>
+                      <p className="text-xs text-gray-500">Order ID</p>
+                      <p className="font-bold">{order.orderId}</p>
+                    </div>
+
+                    <div>
+                      <p className="text-xs text-gray-500">Date</p>
+                      <p>{new Date(order.orderDate).toLocaleString()}</p>
+                    </div>
+
+                    <div>
+                      <p className="text-xs text-gray-500">Total</p>
+                      <p className="text-blue-600 font-bold">
+                        ₹{total.toFixed(2)}
+                      </p>
+                    </div>
+
+                    <span className="bg-purple-100 text-purple-700 px-3 py-1 rounded-full text-sm">
+                      {order.status}
+                    </span>
                   </div>
 
-                  <div>
-                    <p className="text-xs text-gray-500">Date</p>
-                    <p>{order.date}</p>
+                  <div className="flex justify-between items-center border-t pt-4">
+                    <div className="flex gap-3">
+                      {items.slice(0, 2).map((item, i) => (
+                        <img
+                          key={i}
+                          src={item.image}
+                          className="w-20 h-20 rounded-lg"
+                        />
+                      ))}
+                    </div>
+
+                    <button
+                      onClick={() => navigate("/order-tracking", { state: order })}
+                      className="bg-blue-600 text-white px-4 py-2 rounded-lg"
+                    >
+                      View Details
+                    </button>
                   </div>
 
-                  <div>
-                    <p className="text-xs text-gray-500">Total</p>
-                    <p className="text-blue-600 font-bold">
-                      ${order.total.toFixed(2)}
-                    </p>
-                  </div>
-
-                  <span className="bg-purple-100 text-purple-700 px-3 py-1 rounded-full text-sm">
-                    {order.status}
-                  </span>
                 </div>
-
-                <div className="flex justify-between items-center border-t pt-4">
-                  <div className="flex gap-3">
-                    {order.items.slice(0, 2).map((item) => (
-                      <img
-                        key={item.id}
-                        src={item.image}
-                        className="w-20 h-20 rounded-lg"
-                      />
-                    ))}
-                  </div>
-
-                  <button className="bg-blue-600 text-white px-4 py-2 rounded-lg">
-                    View Details
-                  </button>
-                </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
-
-          {/* Add more cards same pattern */}
         </div>
       </main>
     </div>
   );
 };
+
 
 export default OrderHistory;

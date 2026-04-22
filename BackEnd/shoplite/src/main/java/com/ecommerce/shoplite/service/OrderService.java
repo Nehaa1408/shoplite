@@ -161,15 +161,16 @@ public class OrderService {
             dto.setProductName(item.getProduct().getName());
             dto.setPrice(item.getPrice());
             dto.setQuantity(item.getQuantity());
-
-            itemResponses.add(dto);
             dto.setImage(item.getProduct().getImageUrl());
+            itemResponses.add(dto);
+            
         }
 
         OrderResponse response = new OrderResponse();
         response.setOrderId(order.getId());
         response.setTotalAmount(order.getTotalAmount());
         response.setStatus(order.getStatus().name());
+        response.setOrderDate(order.getOrderDate().toString());
         response.setItems(itemResponses);
 
         return response;

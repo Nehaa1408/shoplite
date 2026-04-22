@@ -6,10 +6,17 @@ const OrderConfirmation = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const order = location.state;
-
   if (!order) {
     return <p>No order found</p>;
   }
+  const subtotal = order.items.reduce(
+    (sum, item) => sum + item.price * item.quantity,
+    0
+  );
+
+  const tax = subtotal * 0.04;
+  const total = subtotal + tax;
+
 
   return (
     <div className="bg-surface text-on-surface min-h-screen glow-bg pb-24 md:pb-0">
@@ -119,7 +126,7 @@ const OrderConfirmation = () => {
               <div className="space-y-4">
                 <div className="flex justify-between">
                   <span>Subtotal</span>
-                  <span>₹{order.totalAmount.toFixed(2)}</span>
+                  <span>${subtotal.toFixed(2)}</span>
                 </div>
 
                 <div className="flex justify-between">
@@ -131,7 +138,7 @@ const OrderConfirmation = () => {
               <div className="border-t mt-6 pt-6 flex justify-between">
                 <span className="font-bold">Total</span>
                 <span className="text-2xl font-bold text-primary">
-                  ${order.totalAmount.toFixed(2)}
+                  ${total.toFixed(2)}
                 </span>
               </div>
 
