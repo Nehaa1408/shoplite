@@ -1,85 +1,44 @@
 import React from "react";
 import { useCart } from "../../context/CartContext";
 import { useNavigate } from "react-router-dom";
+import axios from "axios";
 const Home = () => {
+  const [products, setProducts] = React.useState([]);
+  const [loading, setLoading] = React.useState(true);
   const navigate = useNavigate();
   const { addToCart, cart } = useCart();
   const [searchTerm, setSearchTerm] = React.useState("");
 
+  React.useEffect(() => {
+    const fetchProducts = async () => {
+      try {
+        const res = await axios.get("http://localhost:8080/api/products");
+        setProducts(res.data);
+      } catch (err) {
+        console.error(err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchProducts();
+  }, []);
+
   const [currentPage, setCurrentPage] = React.useState(1);
   const productsPerPage = 6;
 
-  const products = [
-    {
-      id: 1,
-      name: "Modern Tech Watch",
-      desc: "Space Grey Edition",
-      price: "$129.00",
-      priceValue: 129,
-      category: "electronics",
-      brand: "tech",
-      image:
-        "https://lh3.googleusercontent.com/aida-public/AB6AXuAUMurXWubWjIsx3nJk-e0Ed7TTwV_b6mfVTAvmXQISyd1TcxOsoGRGtLJZRE8Xsi-EZgVB53gJTU7QlIN6Fq21gGqRk3N8q7PyzZXPMFw4bHuxb6VI-2rferKVQgZt4dh9YrOQzL9vZxDgtFI1iiooWREnPQNFJfMeHl175IKCeTwve3awd3wjXYZBi_KjxQtrD78_X847CjiBBTVLgrBMtMYsl0ueoLSVrwoziQWpRDBuGkNpIWd3ceuLRLXjF3Q_aXFSsbniSOk",
-      tag: "New Arrival",
-    },
-    {
-      id: 2,
-      name: "Eco-friendly Backpack",
-      desc: "Sustainable Canvas",
-      price: "$89.00",
-      priceValue: 89,
-      category: "fashion",
-      brand: "eco",
-      image:
-        "https://lh3.googleusercontent.com/aida-public/AB6AXuByI1JjOhr0tqL3krxHZ2yrbM6pZqwumnesrHF3Mbf9JmHEWutM_zUM10-rEso_2ts22Dka9PitUH15KGwcuVo-V70uAZHgMLNLbfciNkIhywgTfj83TH8BPe7tkq7UZcAr8P-89VhoOFO-TNejXACQnMzaWRHuoYOz8zH16cZEc3Ysj_hgjf-kPuQW5mzhCKOmoXgDZG2leIvjmCEO5mxpi_HxFickMpRe_70JrRK_CvwNFcrgudxjwXXCQU0awBoCgMvhlnvoXIM",
-      tag: "Sale",
-    },
-    {
-      id: 3,
-      name: "Premium Over-Ear",
-      desc: "Active Noise Cancelling",
-      price: "$349.00",
-      priceValue: 349,
-      category: "electronics",
-      brand: "tech",
-      image:
-        "https://lh3.googleusercontent.com/aida-public/AB6AXuAH94kYs6-Y66d0xsysVG-JbvFSFtbp-Svb_9yKITM7TRKIoqXeUh98v5XXrAU3k5kYs6ZmFjJiPbLjNC-u7si8Xvv4w2w5q_iV8Q90VTaoddIaNgVAj6T0Z9GwWraDnTJ6RSE4LbsiGPPG9hELH4C_4H2bF_5k-7qZxWHPrabyrK69W6Q3l3RQT5dVH_cjAUqrbJ1yL9l7xPqBEWYr7oXszEYuflK87kOtAXT9wOhfNV9OEb2Ab5PaKGU7XFxt1Gu9VqlXmInegq8",
-    },
-    {
-      id: 4,
-      name: "Luxe Leather Tote",
-      desc: "Italian Grain Leather",
-      price: "$210.00",
-      priceValue: 210,
-      category: "fashion",
-      brand: "luxury",
-      image:
-        "https://lh3.googleusercontent.com/aida-public/AB6AXuB-CyhHGJfQYM1Ymj8SLEFBTHBKSWmYir1-LNM0dIsDaphUydPyzpXomp2dQJiDoA0id4fL7hI7MXZXm9TYoXajkoDxHVEY_6bNl5_nHJGor9vZh3NJxfVo4RXI6ECIfyJc10Q63C57mRURxEx2UYuWo95uS8xMDgT3VFtUPZbHM7YhnhlU6nGAczIgsv77QsTm5-rktt9HNtbQmgiRzJbqplz8ygUFuL8LclsPkr_eeP8ak05BnZiZ7UCabLXwPyl93PHS0l0me44",
-    },
-    {
-      id: 5,
-      name: "Aero-Peak Runner",
-      desc: "Pro Athletic Series",
-      price: "$155.00",
-      priceValue: 155,
-      category: "fashion",
-      brand: "nike",
-      image:
-        "https://lh3.googleusercontent.com/aida-public/AB6AXuAXMxMiJJl0aKSv-hStpEYSOPZJJtScvk83K9DK0m15ZCLMyqPLr6rUCrQIcNGBBBe-GfM9iX5U2NPg5OuK_5ukxlZ9lCSbgSQrMDpbA-3vSF5K9AdFX7OIkGLLeTXq5iNOyCUSmUC5_lOwqS-IPhQ6L3XC8lYoWSWdnKTsK0BTVSvvKQj8-qXDLbsTtrK7X8mrciAR9x3WysLeyAFtefrDqQSMg6PBUVr7VAkJMt9ESGliyJLeteEwRGTwORbObXOg9xP4249ZL_g",
-    },
-    {
-      id: 6,
-      name: "Ocean-Gaze Eyewear",
-      desc: "UV400 Protection",
-      price: "$180.00",
-      priceValue: 180,
-      category: "accessories",
-      brand: "luxury",
-      image:
-        "https://lh3.googleusercontent.com/aida-public/AB6AXuC7r0sWFGk8RC9zuXaym9yXUZ0EtJYA3xFjXL_dr_WZUdou7CT3-WpsR-ZYNsV7Yvk4hmN_GtX3z_qKD6jWu8i96HSy3yedbxP7G54G6_LgpmcR_YvzdsKXW06dZNp1zgE6XW8xvRdUWNp95u5P2GtpOx-rDF7w9fTCgelm6wRvyKdbnMnHL2y3djurHOyd8f05sP1sIaGuTe7oWZC80oBu9aaMApko_kHFowc5LlcX44rRAfwpg4AkJrirHDlHkT1eWyeXp7hg1CA",
-    },
-  ];
-  const filteredProducts = products.filter((product) => {
+
+  const backendProducts = products.map((p) => ({
+    id: p.id,
+    name: p.name,
+    desc: p.description,
+    price: `$${p.price}`,
+    priceValue: p.price,
+    image: p.imageUrl,
+  }));
+  const allProducts = backendProducts;
+
+  const filteredProducts = allProducts.filter((product) => {
     if (!searchTerm) return true;
 
     return (
@@ -133,7 +92,7 @@ const Home = () => {
           </button>
           <button
             onClick={() => {
-              const isLoggedIn = localStorage.getItem("userAuth");
+              const isLoggedIn = localStorage.getItem("token");
 
               if (isLoggedIn) {
                 navigate("/profile");
@@ -291,11 +250,10 @@ const Home = () => {
 
                     {product.tag && (
                       <div
-                        className={`absolute top-4 right-4 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider ${
-                          product.tag === "Sale"
-                            ? "bg-primary text-on-primary"
-                            : "bg-white/90 backdrop-blur-md text-primary"
-                        }`}
+                        className={`absolute top-4 right-4 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider ${product.tag === "Sale"
+                          ? "bg-primary text-on-primary"
+                          : "bg-white/90 backdrop-blur-md text-primary"
+                          }`}
                       >
                         {product.tag}
                       </div>
@@ -349,11 +307,10 @@ const Home = () => {
                 <button
                   key={i}
                   onClick={() => setCurrentPage(i + 1)}
-                  className={`w-10 h-10 rounded-lg font-semibold ${
-                    currentPage === i + 1
-                      ? "bg-primary text-on-primary"
-                      : "hover:bg-surface-container-high"
-                  }`}
+                  className={`w-10 h-10 rounded-lg font-semibold ${currentPage === i + 1
+                    ? "bg-primary text-on-primary"
+                    : "hover:bg-surface-container-high"
+                    }`}
                 >
                   {i + 1}
                 </button>

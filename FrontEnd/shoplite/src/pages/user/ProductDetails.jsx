@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { useCart } from "../../context/CartContext";
 import { useNavigate } from "react-router-dom";
 
+
 const ProductDetails = () => {
   const images = [
     "https://lh3.googleusercontent.com/aida-public/AB6AXuDoyvMf5KGbTJRwCtYfS3zHtoHeZ19DNn_AKFKJQqALmlHJj0fEJRV5yVNEOmZ794K2s5jba68Ef_shx47ZyCveOO-Dygb2RlOL8HC6OCDEXc3qF2uosCO-hjWTc_uBRQZnttWfoihss7H_ccrk-JcUza7b-Ej_opiAaPVrfrG23ZTFtkPv45agjCF4X0l6AzDoWWtvtwgYG1KvgOHt0NCJ78sVJWOwrj8ZnhVIfrtNJBA0yHWvDZH9MS89jzFQS7zg2mLWH0Gof9s",
@@ -9,10 +10,10 @@ const ProductDetails = () => {
     "https://lh3.googleusercontent.com/aida-public/AB6AXuBCZvZeyVTOdzk1xDdYt9FEJwfiVpMRvmkRUCYPw9pPYgWMR4-JoXvT8JML7jjeisHQcuh51wZZIN--ZYrbVSS0EDNDEwsFWmEFvPF_q9zXdRw2RQ3ZSYVRarzw0IIorAdLq2YtGhN2qNlIUG_5maL55gwTqc6Rq23LhWWY42ASU-v98y-R_G91PkUoZ49cVO5fv25rV0qBEvQv9EjTFgEz5N6rtvvWwIk_2qNSOBx_kKo3afGhbTrhJmjge8tzuBufSOrm8RAdnoA",
     "https://lh3.googleusercontent.com/aida-public/AB6AXuDEvZuvfv4dfo_j7YcjEBzfQtImUR3EeAHkhQ4GSXEtwDaTQZB3gwtHP20K3SaAc6gD1uiquSUnBg2JlhGmkW-kGo9qLdHxWwSs9YS-h9t9dHx4x8Y9i0CflDbBp9GfKJfDtrhz80OKsmkmlMxYwIjMldyex8bzoePnZd94bD3M3oqtDlNhFZZxIZmHW0__WtbhR0XderyJCszk1_rXqI-oQv5ZEsRi3MgAk-H9kLqfXuJhrT78ylekqjUklEBUqWNBO4Y6vcimyyI",
   ];
-
+  const [product, setProduct] = React.useState(null);
   const [mainImage, setMainImage] = useState(images[0]);
   const [qty, setQty] = useState(1);
-  const product = {
+  const displayProduct = {
     id: 1,
     name: "Aura-9 Wireless Noise-Cancelling Headphones",
     price: "$349.00",
@@ -78,11 +79,10 @@ const ProductDetails = () => {
                   src={img}
                   onClick={() => setMainImage(img)}
                   className={`w-20 h-20 object-cover rounded-lg cursor-pointer border-2 transition
-                  ${
-                    mainImage === img
+                  ${mainImage === img
                       ? "border-primary"
                       : "border-transparent hover:border-gray-300"
-                  }`}
+                    }`}
                 />
               ))}
             </div>
@@ -140,7 +140,41 @@ const ProductDetails = () => {
             {/* Buttons */}
             <div className="flex gap-4 pt-2">
               <button
-                onClick={() => addToCart(product)}
+                onClick={async () => {
+
+                  addToCart({
+                    id: displayProduct.id,
+                    name: displayProduct.name,
+                    priceValue: displayProduct.priceValue,
+                    image: displayProduct.image,
+                    quantity: qty,
+                  });
+
+
+                  try {
+                    const token = localStorage.getItem("token");
+
+                    if (!token) return;
+
+                    await axios.post(
+                      "http://localhost:8080/cart/add",
+                      null,
+                      {
+                        params: {
+                          productId: displayProduct.id,
+                          quantity: qty,
+                        },
+                        headers: {
+                          Authorization: `Bearer ${token}`,
+                        },
+                      }
+                    );
+
+                    console.log("Saved to backend cart");
+                  } catch (err) {
+                    console.error("Backend cart error:", err);
+                  }
+                }}
                 className="flex-1 py-5 rounded-xl text-white font-bold
   bg-gradient-to-r from-blue-600 to-blue-400 shadow-lg hover:scale-[0.98] transition"
               >

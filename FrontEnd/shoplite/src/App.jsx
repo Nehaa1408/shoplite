@@ -1,5 +1,8 @@
 import React from "react";
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
+
 import Home from "./pages/user/Home";
 import UserLogin from "./pages/user/UserLogin";
 import UserSignup from "./pages/user/UserSignup";
@@ -12,23 +15,25 @@ import Checkout from "./pages/user/Checkout";
 import OrderConfirmation from "./pages/user/OrderConfirmation";
 import OrderTracking from "./pages/user/OrderTracking";
 import OrderHistory from "./pages/user/OrderHistory";
+import Profile from "./pages/user/Profile";
+import TicketManagement from "./pages/user/TicketManagement";
+
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import ManageProducts from "./pages/admin/ManageProducts";
 import AddProduct from "./pages/admin/AddProduct";
 import ManageOrders from "./pages/admin/ManageOrders";
 import AdminSignup from "./pages/admin/AdminSignup";
 import AdminLogin from "./pages/admin/AdminLogin";
-import Profile from "./pages/user/Profile";
-import TicketManagement from "./pages/user/TicketManagement";
 import AdminTickets from "./pages/admin/AdminTickets";
 import AdminTicketDetails from "./pages/admin/AdminTicketDetails";
-
-
-
 
 function App() {
   return (
     <BrowserRouter>
+
+      
+      <ToastContainer position="top-right" autoClose={2000} />
+
       <Routes>
         {/* USER */}
         <Route path="/" element={<Home />} />
@@ -45,16 +50,16 @@ function App() {
         <Route path="/order-tracking" element={<OrderTracking />} />
         <Route path="/orders" element={<OrderHistory />} />
         <Route path="/tickets" element={<TicketManagement />} />
+
         {/* ADMIN */}
         <Route path="/admin" element={<AdminDashboard />} />
-        <Route path="/admin/tickets" element={<AdminTickets />} />        
+        <Route path="/admin/tickets" element={<AdminTickets />} />
         <Route path="/admin/products" element={<ManageProducts />} />
         <Route path="/admin/add-product" element={<AddProduct />} />
         <Route path="/manage-orders" element={<ManageOrders />} />
         <Route path="/admin/signup" element={<AdminSignup />} />
         <Route path="/admin/login" element={<AdminLogin />} />
         <Route path="/admin/ticket/:id" element={<AdminTicketDetails />} />
-
       </Routes>
     </BrowserRouter>
   );

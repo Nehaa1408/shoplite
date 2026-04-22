@@ -3,11 +3,11 @@ import { useNavigate } from "react-router-dom";
 import { useCart } from "../../context/CartContext";
 
 const Cart = () => {
-  const { cart, removeFromCart, increaseQty, decreaseQty } = useCart();
+  const { cart, removeFromCart, increaseQty, decreaseQty,clearCart } = useCart();
 
   const subtotal = cart.reduce(
-    (sum, item) => sum + item.priceValue * item.quantity,
-    0,
+    (sum, item) => sum + item.price * item.quantity,
+    0
   );
 
   const tax = subtotal * 0.04;
@@ -29,7 +29,7 @@ const Cart = () => {
         <div className="lg:col-span-8 space-y-6">
           {cart.map((item) => (
             <div
-              key={item.id}
+              key={item.productId}
               className="glass-panel rounded-xl p-6 flex flex-col md:flex-row gap-6 shadow"
             >
               <div className="w-full md:w-40 h-40 rounded-lg overflow-hidden">
@@ -40,14 +40,14 @@ const Cart = () => {
                 {/* TOP */}
                 <div className="flex justify-between">
                   <div>
-                    <h3 className="text-xl font-bold">{item.name}</h3>
+                    <h3 className="text-xl font-bold">{item.productName}</h3>
                     <p className="text-sm text-on-surface-variant">
-                      {item.desc}
+
                     </p>
                   </div>
 
                   <span className="text-xl font-bold text-primary">
-                    ${item.priceValue}
+                    ${item.price}
                   </span>
                 </div>
 
@@ -56,7 +56,7 @@ const Cart = () => {
                   {/* QTY */}
                   <div className="flex items-center bg-surface-container-low rounded p-1">
                     <button
-                      onClick={() => decreaseQty(item.id)}
+                      onClick={() => decreaseQty(item.productId, item.quantity)}
                       className="w-8 h-8 flex items-center justify-center"
                     >
                       -
@@ -65,7 +65,7 @@ const Cart = () => {
                     <span className="px-4 font-semibold">{item.quantity}</span>
 
                     <button
-                      onClick={() => increaseQty(item.id)}
+                      onClick={() => increaseQty(item.productId, item.quantity)}
                       className="w-8 h-8 flex items-center justify-center"
                     >
                       +
@@ -74,7 +74,7 @@ const Cart = () => {
 
                   {/* REMOVE */}
                   <button
-                    onClick={() => removeFromCart(item.id)}
+                    onClick={() => removeFromCart(item.productId)}
                     className="text-error text-sm"
                   >
                     Remove

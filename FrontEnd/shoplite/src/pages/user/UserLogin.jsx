@@ -1,14 +1,55 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { GoogleLogin } from "@react-oauth/google";
+import axios from "axios";
+import { toast } from "react-toastify";
 const UserLogin = () => {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState("login");
-  const handleLogin = (e) => {
+  const handleLogin = async (e) => {
     e.preventDefault();
-    localStorage.setItem("userAuth", "true");
+    if (!email || !password) {
+      alert("Please enter email and password");
+      return;
+    }
 
-    navigate("/");
+    try {
+      const res = await axios.post(
+        "http://localhost:8080/api/auth/login",
+        {
+          email,
+          password,
+        }
+      );
+
+
+      localStorage.setItem("token", res.data.token);
+
+
+      localStorage.setItem("user", JSON.stringify(res.data));
+
+      navigate("/");
+    } catch (err) {
+      console.error(err);
+
+      if (err.response) {
+        const message = err.response.data?.message;
+
+        if (message?.includes("User not found")) {
+          alert("User not registered");
+        } else if (message?.includes("Invalid password")) {
+          alert("Wrong password, please re-enter");
+        } else {
+          alert("Invalid credentials");
+        }
+      } else {
+        alert("Server error. Try again.");
+      }
+    }
   };
+
   return (
     <div
       className="min-h-screen font-body text-on-background relative overflow-x-hidden 
@@ -56,11 +97,10 @@ bg-gradient-to-br from-[#f9f5ff] via-[#ece8ff] to-[#859aff]"
             <div className="flex p-1 bg-gray-100 rounded-lg mb-8">
               <button
                 onClick={() => setActiveTab("login")}
-                className={`flex-1 py-2 text-sm rounded-md transition ${
-                  activeTab === "login"
-                    ? "bg-white shadow font-bold text-blue-600"
-                    : "text-gray-500"
-                }`}
+                className={`flex-1 py-2 text-sm rounded-md transition ${activeTab === "login"
+                  ? "bg-white shadow font-bold text-blue-600"
+                  : "text-gray-500"
+                  }`}
               >
                 Login
               </button>
@@ -69,11 +109,10 @@ bg-gradient-to-br from-[#f9f5ff] via-[#ece8ff] to-[#859aff]"
                   setActiveTab("signup");
                   navigate("/signup");
                 }}
-                className={`flex-1 py-2 text-sm rounded-md transition ${
-                  activeTab === "signup"
-                    ? "bg-white shadow font-bold text-blue-600"
-                    : "text-gray-500"
-                }`}
+                className={`flex-1 py-2 text-sm rounded-md transition ${activeTab === "signup"
+                  ? "bg-white shadow font-bold text-blue-600"
+                  : "text-gray-500"
+                  }`}
               >
                 Sign Up
               </button>
@@ -91,6 +130,7 @@ bg-gradient-to-br from-[#f9f5ff] via-[#ece8ff] to-[#859aff]"
                     type="email"
                     placeholder="name@example.com"
                     className="w-full p-4 rounded-lg bg-gray-100 outline-none"
+                    onChange={(e) => setEmail(e.target.value)}
                   />
                   <span className="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 text-gray-400">
                     mail
@@ -114,31 +154,15 @@ bg-gradient-to-br from-[#f9f5ff] via-[#ece8ff] to-[#859aff]"
                     type="password"
                     placeholder="••••••••"
                     className="w-full p-4 rounded-lg bg-gray-100 outline-none"
+                    onChange={(e) => setPassword(e.target.value)}
                   />
-                  <span className="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 text-gray-400">
-                    lock
-                  </span>
+
                 </div>
               </div>
 
               {/* SIGN IN BUTTON */}
               <button
                 type="submit"
-                onClick={(e) => {
-                  e.preventDefault();
-
-                  localStorage.setItem("userAuth", "true");
-
-                  localStorage.setItem(
-                    "userData",
-                    JSON.stringify({
-                      name: "neha",
-                      email: "neha@example.com",
-                    }),
-                  );
-
-                  navigate("/");
-                }}
                 className="w-full py-4 bg-gradient-to-r from-blue-600 to-indigo-400 text-white font-bold rounded-lg shadow hover:opacity-90"
               >
                 Sign In →
@@ -155,14 +179,36 @@ bg-gradient-to-br from-[#f9f5ff] via-[#ece8ff] to-[#859aff]"
             {/* SOCIAL LOGIN */}
             <div className="grid grid-cols-2 gap-4">
               {/* GOOGLE */}
-              <button className="flex items-center justify-center gap-2 py-3 bg-gray-100 rounded-lg hover:bg-gray-200 transition">
-                <img
-                  src="https://www.svgrepo.com/show/475656/google-color.svg"
-                  className="w-5 h-5"
-                  alt="google"
-                />
-                <span className="text-sm font-semibold">Google</span>
-              </button>
+              <GoogleLogin
+                text="signin_with"
+                size="large"
+                theme="outline"
+                onSuccess={async (credentialResponse) => {
+                  try {
+                    const res = await axios.post(
+                      "http://localhost:8080/api/auth/oauth/google",
+                      {
+                        token: credentialResponse.credential,
+                      }
+                    );
+
+                    localStorage.setItem("token", res.data.token);
+                    localStorage.setItem("user", JSON.stringify(res.data));
+
+                    toast.success("Welcome back ShopLite 🚀");
+
+                    setTimeout(() => {
+                      navigate("/");
+                    }, 1000);
+                  } catch (err) {
+                    console.error(err);
+                    toast.error("Google login failed");
+                  }
+                }}
+                onError={() => {
+                  toast.error("Google Login Failed");
+                }}
+              />
 
               {/* iOS (FIXED) */}
               <button className="flex items-center justify-center py-3 bg-gray-100 rounded-lg hover:bg-gray-200 transition">

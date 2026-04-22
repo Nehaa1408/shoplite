@@ -9,8 +9,6 @@ import org.springframework.stereotype.Service;
 import com.ecommerce.shoplite.dto.OrderItemResponse;
 import com.ecommerce.shoplite.dto.OrderResponse;
 import com.ecommerce.shoplite.entity.*;
-
-import com.ecommerce.shoplite.entity.User;
 import com.ecommerce.shoplite.repository.CartRepository;
 import com.ecommerce.shoplite.repository.OrderRepository;
 import com.ecommerce.shoplite.repository.ProductRepository;
@@ -163,7 +161,9 @@ public class OrderService {
             dto.setProductName(item.getProduct().getName());
             dto.setPrice(item.getPrice());
             dto.setQuantity(item.getQuantity());
+
             itemResponses.add(dto);
+            dto.setImage(item.getProduct().getImageUrl());
         }
 
         OrderResponse response = new OrderResponse();

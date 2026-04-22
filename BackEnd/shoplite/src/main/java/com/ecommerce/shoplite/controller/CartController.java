@@ -37,10 +37,11 @@ public class CartController {
     @PostMapping("/add")
     public ResponseEntity<CartResponse> addToCart(
             @RequestParam Long productId,
+            @RequestParam int quantity,
             @RequestHeader("Authorization") String token) {
 
         Long userId = getUserIdFromToken(token);
-        return ResponseEntity.ok(cartService.addItem(userId, productId));
+        return ResponseEntity.ok(cartService.addItem(userId, productId, quantity));
     }
 
     @GetMapping

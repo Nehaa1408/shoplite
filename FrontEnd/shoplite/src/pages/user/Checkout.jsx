@@ -1,16 +1,16 @@
 import React, { useState } from "react";
-
+import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { useCart } from "../../context/CartContext";
 
 const Checkout = () => {
   const navigate = useNavigate();
-  const { cart, clearCart } = useCart();
+  const { cart } = useCart();
 
   const orderId = "SL-" + Math.floor(100000 + Math.random() * 900000);
   const orderDate = new Date().toLocaleDateString();
   const subtotal = cart.reduce(
-    (sum, item) => sum + item.priceValue * item.quantity,
+    (sum, item) => sum + item.price * item.quantity,
     0,
   );
 
@@ -146,11 +146,10 @@ const Checkout = () => {
                   {/* CARD */}
                   <div
                     onClick={() => setPayment("card")}
-                    className={`p-6 rounded-xl border cursor-pointer transition ${
-                      payment === "card"
-                        ? "border-[#0846ed] bg-[#f2efff] ring-2 ring-[#0846ed]/30"
-                        : "border-[#aba9d7]/20 bg-[#f2efff]"
-                    }`}
+                    className={`p-6 rounded-xl border cursor-pointer transition ${payment === "card"
+                      ? "border-[#0846ed] bg-[#f2efff] ring-2 ring-[#0846ed]/30"
+                      : "border-[#aba9d7]/20 bg-[#f2efff]"
+                      }`}
                   >
                     <div className="flex justify-between items-center mb-6">
                       <div className="flex items-center gap-4">
@@ -161,11 +160,10 @@ const Checkout = () => {
                       </div>
 
                       <div
-                        className={`w-5 h-5 border-2 rounded-full flex items-center justify-center ${
-                          payment === "card"
-                            ? "border-[#0846ed]"
-                            : "border-[#aba9d7]"
-                        }`}
+                        className={`w-5 h-5 border-2 rounded-full flex items-center justify-center ${payment === "card"
+                          ? "border-[#0846ed]"
+                          : "border-[#aba9d7]"
+                          }`}
                       >
                         {payment === "card" && (
                           <div className="w-2.5 h-2.5 bg-[#0846ed] rounded-full"></div>
@@ -194,11 +192,10 @@ const Checkout = () => {
                   {/* UPI */}
                   <div
                     onClick={() => setPayment("upi")}
-                    className={`p-6 rounded-xl border cursor-pointer flex justify-between items-center ${
-                      payment === "upi"
-                        ? "border-[#0846ed] bg-[#f2efff] ring-2 ring-[#0846ed]/30"
-                        : "border-[#aba9d7]/20 bg-[#f2efff]"
-                    }`}
+                    className={`p-6 rounded-xl border cursor-pointer flex justify-between items-center ${payment === "upi"
+                      ? "border-[#0846ed] bg-[#f2efff] ring-2 ring-[#0846ed]/30"
+                      : "border-[#aba9d7]/20 bg-[#f2efff]"
+                      }`}
                   >
                     <div className="flex items-center gap-4">
                       <span className="material-symbols-outlined text-[#0846ed]">
@@ -208,11 +205,10 @@ const Checkout = () => {
                     </div>
 
                     <div
-                      className={`w-5 h-5 border-2 rounded-full ${
-                        payment === "upi"
-                          ? "border-[#0846ed]"
-                          : "border-[#aba9d7]"
-                      }`}
+                      className={`w-5 h-5 border-2 rounded-full ${payment === "upi"
+                        ? "border-[#0846ed]"
+                        : "border-[#aba9d7]"
+                        }`}
                     >
                       {payment === "upi" && (
                         <div className="w-2.5 h-2.5 bg-[#0846ed] rounded-full m-auto mt-[3px]"></div>
@@ -223,11 +219,10 @@ const Checkout = () => {
                   {/* COD */}
                   <div
                     onClick={() => setPayment("cod")}
-                    className={`p-6 rounded-xl border cursor-pointer flex justify-between items-center ${
-                      payment === "cod"
-                        ? "border-[#0846ed] bg-[#f2efff] ring-2 ring-[#0846ed]/30"
-                        : "border-[#aba9d7]/20 bg-[#f2efff]"
-                    }`}
+                    className={`p-6 rounded-xl border cursor-pointer flex justify-between items-center ${payment === "cod"
+                      ? "border-[#0846ed] bg-[#f2efff] ring-2 ring-[#0846ed]/30"
+                      : "border-[#aba9d7]/20 bg-[#f2efff]"
+                      }`}
                   >
                     <div className="flex items-center gap-4">
                       <span className="material-symbols-outlined text-[#0846ed]">
@@ -237,11 +232,10 @@ const Checkout = () => {
                     </div>
 
                     <div
-                      className={`w-5 h-5 border-2 rounded-full ${
-                        payment === "cod"
-                          ? "border-[#0846ed]"
-                          : "border-[#aba9d7]"
-                      }`}
+                      className={`w-5 h-5 border-2 rounded-full ${payment === "cod"
+                        ? "border-[#0846ed]"
+                        : "border-[#aba9d7]"
+                        }`}
                     >
                       {payment === "cod" && (
                         <div className="w-2.5 h-2.5 bg-[#0846ed] rounded-full m-auto mt-[3px]"></div>
@@ -260,7 +254,7 @@ const Checkout = () => {
                 {/* ITEMS */}
                 <div className="space-y-4 mb-6">
                   {cart.map((item) => (
-                    <div key={item.id} className="flex gap-4">
+                    <div key={item.productId} className="flex gap-4">
                       <img
                         src={item.image}
                         className="w-16 h-16 object-cover rounded-lg"
@@ -274,7 +268,7 @@ const Checkout = () => {
                       </div>
 
                       <p className="font-bold text-primary text-sm">
-                        ${(item.priceValue * item.quantity).toFixed(2)}
+                        ${(item.price * item.quantity).toFixed(2)}
                       </p>
                     </div>
                   ))}
@@ -307,34 +301,27 @@ const Checkout = () => {
 
                 {/* BUTTON */}
                 <button
-                  onClick={() => {
-                    const newOrder = {
-                      id: orderId,
-                      date: orderDate,
-                      items: orderData,
-                      subtotal,
-                      tax,
-                      total,
-                      status: "Placed",
-                    };
+                  onClick={async () => {
+                    try {
+                      const token = localStorage.getItem("token");
 
-                    const existingOrders =
-                      JSON.parse(localStorage.getItem("orders")) || [];
+                      const res = await axios.post(
+                        "http://localhost:8080/orders/place",
+                        {},
+                        {
+                          headers: {
+                            Authorization: `Bearer ${token}`,
+                          },
+                        }
+                      );
 
-                    const updatedOrders = [newOrder, ...existingOrders];
+                      navigate("/order-success", {
+                        state: res.data,
+                      });
 
-                    localStorage.setItem(
-                      "orders",
-                      JSON.stringify(updatedOrders),
-                    );
-
-                    navigate("/order-success", {
-                      state: newOrder,
-                    });
-
-                    setTimeout(() => {
-                      clearCart();
-                    }, 100);
+                    } catch (err) {
+                      console.error("Order failed:", err);
+                    }
                   }}
                   className="w-full mt-10 py-5 bg-gradient-to-br from-primary to-primary-container rounded-lg text-white font-bold text-lg"
                 >

@@ -52,7 +52,7 @@ public class UserService {
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
         if (!user.getPassword().equals(password)) {
-            throw new RuntimeException("Invalid Password");
+            throw new RuntimeException("Invalid password");
         }
 
         String token = jwtUtil.generateToken(user.getEmail());

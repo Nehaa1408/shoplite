@@ -1,13 +1,56 @@
-import React from "react";
+import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import axios from 'axios';
+import { GoogleLogin } from "@react-oauth/google";
+import { toast } from "react-toastify";
 
 const UserSignup = () => {
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const navigate = useNavigate();
-  const handleSignup = (e) => {
+  const handleSignup = async (e) => {
     e.preventDefault();
-    localStorage.setItem("userAuth", "true");
 
-    navigate("/");
+    if (!name || !email || !password) {
+      alert("Please fill all fields");
+      return;
+    }
+    if (password !== confirmPassword) {
+      alert("Passwords do not match");
+      return;
+    }
+
+    try {
+      console.log("DATA:", { name, email, password });
+      await axios.post("http://localhost:8080/api/auth/register", {
+        name,
+        email,
+        password,
+      });
+      const loginRes = await axios.post(
+        "http://localhost:8080/api/auth/login",
+        {
+          email,
+          password,
+        }
+      );
+
+
+      localStorage.setItem("token", loginRes.data.token);
+      localStorage.setItem("user", JSON.stringify(loginRes.data));
+
+      navigate("/");
+    } catch (err) {
+      console.error(err);
+
+      if (err.response && err.response.data) {
+        alert(err.response.data.message);
+      } else {
+        alert("Signup failed");
+      }
+    }
   };
 
   return (
@@ -59,14 +102,34 @@ const UserSignup = () => {
             {/* SOCIAL */}
             <div className="grid grid-cols-2 gap-4 mb-6">
               {/* GOOGLE */}
-              <button className="flex items-center justify-center gap-2 py-3 bg-gray-100 rounded-lg hover:bg-gray-200">
-                <img
-                  src="https://www.svgrepo.com/show/475656/google-color.svg"
-                  className="w-5 h-5"
-                  alt="google"
-                />
-                <span className="text-sm font-medium">Google</span>
-              </button>
+              <GoogleLogin
+               text="signup_with"
+                onSuccess={async (credentialResponse) => {
+                  try {
+                    const res = await axios.post(
+                      "http://localhost:8080/api/auth/oauth/google",
+                      {
+                        token: credentialResponse.credential,
+                      }
+                    );
+
+                    localStorage.setItem("token", res.data.token);
+                    localStorage.setItem("user", JSON.stringify(res.data));
+
+                    toast.success("Welcome back ShopLite 🚀");
+
+                    setTimeout(() => {
+                      navigate("/");
+                    }, 1000);
+                  } catch (err) {
+                    console.error(err);
+                    toast.error("Google login failed");
+                  }
+                }}
+                onError={() => {
+                  toast.error("Google Login Failed");
+                }}
+              />
 
               {/* iOS */}
               <button className="flex items-center justify-center py-3 bg-gray-100 rounded-lg hover:bg-gray-200">
@@ -90,8 +153,9 @@ const UserSignup = () => {
                 <label className="text-xs text-gray-500">Full Name</label>
                 <input
                   type="text"
-                  placeholder="John Doe"
+                  placeholder="Enter Name"
                   className="w-full p-3 rounded-lg bg-gray-100 mt-1 outline-none"
+                  onChange={(e) => setName(e.target.value)}
                 />
               </div>
 
@@ -102,6 +166,7 @@ const UserSignup = () => {
                   type="email"
                   placeholder="name@example.com"
                   className="w-full p-3 rounded-lg bg-gray-100 mt-1 outline-none"
+                  onChange={(e) => setEmail(e.target.value)}
                 />
               </div>
 
@@ -111,11 +176,13 @@ const UserSignup = () => {
                   type="password"
                   placeholder="Password"
                   className="p-3 rounded-lg bg-gray-100 outline-none"
+                  onChange={(e) => setPassword(e.target.value)}
                 />
                 <input
                   type="password"
                   placeholder="Confirm"
                   className="p-3 rounded-lg bg-gray-100 outline-none"
+                  onChange={(e) => setConfirmPassword(e.target.value)}
                 />
               </div>
 
@@ -124,7 +191,7 @@ const UserSignup = () => {
                 type="submit"
                 className="w-full py-4 bg-gradient-to-r from-blue-600 to-indigo-400 text-white font-bold rounded-lg shadow hover:opacity-90"
               >
-                Create Account →
+                Create & Continue →
               </button>
 
               {/* TERMS */}

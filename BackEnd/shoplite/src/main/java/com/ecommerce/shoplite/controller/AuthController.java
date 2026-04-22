@@ -9,7 +9,7 @@ import com.ecommerce.shoplite.dto.LoginResponse;
 import com.ecommerce.shoplite.service.UserService;
 
 @RestController
-@RequestMapping("/api/auth")
+@RequestMapping("/api/auth/oauth")
 @CrossOrigin(origins = "*")
 public class AuthController {
 

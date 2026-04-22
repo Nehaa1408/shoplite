@@ -5,15 +5,11 @@ import { useNavigate } from "react-router-dom";
 const OrderConfirmation = () => {
   const navigate = useNavigate();
   const location = useLocation();
+  const order = location.state;
 
- const {
-  items = [],
-  id: orderId,
-  date: orderDate,
-  subtotal = 0,
-  tax = 0,
-  total = 0,
-} = location.state || {};
+  if (!order) {
+    return <p>No order found</p>;
+  }
 
   return (
     <div className="bg-surface text-on-surface min-h-screen glow-bg pb-24 md:pb-0">
@@ -77,7 +73,7 @@ const OrderConfirmation = () => {
 
           <div className="inline-block px-4 py-2 bg-surface-container-low rounded-xl">
             <span className="text-sm mr-2">Order ID</span>
-            <span className="font-bold text-primary text-lg">#{orderId}</span>
+            <span className="font-bold text-primary text-lg">#{order.orderId}</span>
           </div>
         </section>
 
@@ -87,9 +83,9 @@ const OrderConfirmation = () => {
           <div className="lg:col-span-8 space-y-6">
             <h2 className="text-xl font-bold">Order Details</h2>
 
-            {items.map((item) => (
+            {order.items.map((item, index) => (
               <div
-                key={item.id}
+                key={index}
                 className="bg-white p-5 rounded-xl shadow flex gap-4 items-center hover:scale-[1.01] transition"
               >
                 <div className="w-24 h-24 rounded-lg overflow-hidden">
@@ -101,14 +97,14 @@ const OrderConfirmation = () => {
 
                 <div className="flex-1 flex justify-between">
                   <div>
-                    <h3 className="font-bold text-lg">{item.name}</h3>
+                    <h3 className="font-bold text-lg">{item.productName}</h3>
                     <p className="text-sm text-gray-500">
                       Qty: {item.quantity}
                     </p>
                   </div>
 
                   <span className="font-bold">
-                    ${(item.priceValue * item.quantity).toFixed(2)}
+                    ${(item.price * item.quantity).toFixed(2)}
                   </span>
                 </div>
               </div>
@@ -123,7 +119,7 @@ const OrderConfirmation = () => {
               <div className="space-y-4">
                 <div className="flex justify-between">
                   <span>Subtotal</span>
-                  <span>${subtotal.toFixed(2)}</span>
+                  <span>₹{order.totalAmount.toFixed(2)}</span>
                 </div>
 
                 <div className="flex justify-between">
@@ -135,25 +131,18 @@ const OrderConfirmation = () => {
               <div className="border-t mt-6 pt-6 flex justify-between">
                 <span className="font-bold">Total</span>
                 <span className="text-2xl font-bold text-primary">
-                 ${total.toFixed(2)}
+                  ${order.totalAmount.toFixed(2)}
                 </span>
               </div>
 
               {/* BUTTONS */}
               <div className="mt-6 space-y-3">
                 <button
-                  onClick={() =>
+                  onClick={() => {
                     navigate("/order-tracking", {
-                      state: {
-                        items,
-                        orderId,
-                        orderDate,
-                        subtotal,
-                        tax,
-                        total,
-                      },
-                    })
-                  }
+                      state: order,
+                    });
+                  }}
                   className="w-full py-4 rounded-xl text-white font-bold bg-gradient-to-r from-blue-600 to-blue-400"
                 >
                   Track Order

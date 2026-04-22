@@ -26,7 +26,7 @@ public class CartService {
     @Autowired
     private ProductRepository productRepository;
 
-    public CartResponse addItem(Long userId, Long productId) {
+    public CartResponse addItem(Long userId, Long productId, int quantity) {
 
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("User not found"));
@@ -38,7 +38,7 @@ public class CartService {
 
         for (Cart item : userCart) {
             if (item.getProduct().getId().equals(productId)) {
-                item.setQuantity(item.getQuantity() + 1);
+                item.setQuantity(item.getQuantity() + quantity);
                 return mapToDTO(cartRepository.save(item));
             }
         }
@@ -46,7 +46,7 @@ public class CartService {
         Cart cart = new Cart();
         cart.setUser(user);
         cart.setProduct(product);
-        cart.setQuantity(1);
+        cart.setQuantity(quantity);
 
         return mapToDTO(cartRepository.save(cart));
     }
@@ -89,7 +89,22 @@ public class CartService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
-        cartRepository.deleteByUserAndProductId(user, productId);
+        List<Cart> cartItems = cartRepository.findByUser(user);
+
+        Cart itemToDelete = null;
+
+        for (Cart item : cartItems) {
+            if (item.getProduct().getId().equals(productId)) {
+                itemToDelete = item;
+                break;
+            }
+        }
+
+        if (itemToDelete == null) {
+            throw new RuntimeException("Item not found in cart");
+        }
+
+        cartRepository.delete(itemToDelete);
     }
 
     public void clearCart(Long userId) {
@@ -106,6 +121,7 @@ public class CartService {
         dto.setProductName(item.getProduct().getName());
         dto.setPrice(item.getProduct().getPrice());
         dto.setQuantity(item.getQuantity());
+        dto.setImage(item.getProduct().getImageUrl());
         return dto;
     }
 }
