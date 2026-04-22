@@ -68,7 +68,7 @@ const TicketManagement = () => {
 
       fetchTickets();
 
-      setSuccessMsg("Ticket created successfully 🎉");
+      setSuccessMsg("Ticket created successfully");
 
 
       setTimeout(() => {
@@ -140,6 +140,7 @@ const TicketManagement = () => {
                 <option>Order Issue</option>
                 <option>Payment Issue</option>
                 <option>Product Issue</option>
+                <option>Other Issue</option>
               </select>
             </div>
 

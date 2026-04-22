@@ -127,4 +127,14 @@ public class UserService {
             throw new RuntimeException("Google authentication failed: " + e.getMessage());
         }
     }
+
+    public User getProfile(String token) {
+
+        token = token.substring(7); // remove "Bearer "
+
+        String email = jwtUtil.extractEmail(token);
+
+        return userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+    }
 }

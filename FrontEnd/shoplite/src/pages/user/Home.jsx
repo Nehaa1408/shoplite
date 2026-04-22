@@ -8,7 +8,15 @@ const Home = () => {
   const navigate = useNavigate();
   const { addToCart, cart } = useCart();
   const [searchTerm, setSearchTerm] = React.useState("");
+  const handleProfileClick = () => {
+    const token = localStorage.getItem("token");
 
+    if (token) {
+      navigate("/profile");
+    } else {
+      navigate("/login");
+    }
+  };
   React.useEffect(() => {
     const fetchProducts = async () => {
       try {
@@ -90,18 +98,7 @@ const Home = () => {
               </span>
             )}
           </button>
-          <button
-            onClick={() => {
-              const isLoggedIn = localStorage.getItem("token");
-
-              if (isLoggedIn) {
-                navigate("/profile");
-              } else {
-                navigate("/login");
-              }
-            }}
-            className="p-2 rounded-lg text-[#2b2a51] opacity-70 hover:bg-[#f2f1ff] transition"
-          >
+          <button onClick={handleProfileClick}>
             <span className="material-symbols-outlined">account_circle</span>
           </button>
         </div>

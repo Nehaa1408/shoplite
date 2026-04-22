@@ -1,14 +1,39 @@
-import React from "react";
+import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-
+import axios from "axios";
 const AdminLogin = () => {
   const navigate = useNavigate();
-
-  const handleLogin = (e) => {
+  const [form, setForm] = useState({
+    email: "",
+    password: ""
+  });
+  const handleChange = (e) => {
+    setForm({
+      ...form,
+      [e.target.name]: e.target.value
+    });
+  };
+  const handleLogin = async (e) => {
     e.preventDefault();
 
-    // TEMP login (later connect backend)
-    navigate("/admin");
+    try {
+      const res = await axios.post(
+        "http://localhost:8080/api/auth/login",
+        form
+      );
+
+
+      localStorage.setItem("token", res.data.token);
+
+
+      localStorage.setItem("role", res.data.role);
+
+      navigate("/admin");
+
+    } catch (err) {
+      console.error(err);
+      alert("Login failed");
+    }
   };
 
   return (
@@ -47,10 +72,13 @@ const AdminLogin = () => {
                 mail
               </span>
               <input
-                type="email"
-                placeholder="admin@shoplite.com"
-                className="w-full pl-10 pr-4 py-3 bg-surface-container-highest/40 rounded-lg outline-none focus:ring-2 focus:ring-primary/30"
-              />
+  type="email"
+  placeholder="admin@shoplite.com"
+  name="email"
+  value={form.email}
+  onChange={handleChange}
+  className="w-full pl-10 pr-4 py-3 bg-surface-container-highest/40 rounded-lg outline-none focus:ring-2 focus:ring-primary/30"
+/>
             </div>
           </div>
 
@@ -62,10 +90,13 @@ const AdminLogin = () => {
                 lock
               </span>
               <input
-                type="password"
-                placeholder="••••••••"
-                className="w-full pl-10 pr-4 py-3 bg-surface-container-highest/40 rounded-lg outline-none focus:ring-2 focus:ring-primary/30"
-              />
+  type="password"
+  placeholder="••••••••"
+  name="password"
+  value={form.password}
+  onChange={handleChange}
+  className="w-full pl-10 pr-4 py-3 bg-surface-container-highest/40 rounded-lg outline-none focus:ring-2 focus:ring-primary/30"
+/>
             </div>
           </div>
 
