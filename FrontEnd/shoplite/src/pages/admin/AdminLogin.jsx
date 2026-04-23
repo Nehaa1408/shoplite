@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 const AdminLogin = () => {
@@ -7,6 +7,14 @@ const AdminLogin = () => {
     email: "",
     password: ""
   });
+  useEffect(() => {
+    const token = sessionStorage.getItem("adminToken");
+    const role = sessionStorage.getItem("adminRole");
+
+    if (token && role === "ADMIN") {
+      navigate("/admin");
+    }
+  }, []);
   const handleChange = (e) => {
     setForm({
       ...form,
@@ -23,16 +31,14 @@ const AdminLogin = () => {
       );
 
 
-      localStorage.setItem("token", res.data.token);
-
-
-      localStorage.setItem("role", res.data.role);
+      sessionStorage.setItem("adminToken", res.data.token);
+      sessionStorage.setItem("adminRole", res.data.role);
 
       navigate("/admin");
 
     } catch (err) {
       console.error(err);
-      alert("Login failed");
+      alert(err.response?.data || "Login failed");
     }
   };
 
@@ -72,13 +78,13 @@ const AdminLogin = () => {
                 mail
               </span>
               <input
-  type="email"
-  placeholder="admin@shoplite.com"
-  name="email"
-  value={form.email}
-  onChange={handleChange}
-  className="w-full pl-10 pr-4 py-3 bg-surface-container-highest/40 rounded-lg outline-none focus:ring-2 focus:ring-primary/30"
-/>
+                type="email"
+                placeholder="admin@shoplite.com"
+                name="email"
+                value={form.email}
+                onChange={handleChange}
+                className="w-full pl-10 pr-4 py-3 bg-surface-container-highest/40 rounded-lg outline-none focus:ring-2 focus:ring-primary/30"
+              />
             </div>
           </div>
 
@@ -90,13 +96,13 @@ const AdminLogin = () => {
                 lock
               </span>
               <input
-  type="password"
-  placeholder="••••••••"
-  name="password"
-  value={form.password}
-  onChange={handleChange}
-  className="w-full pl-10 pr-4 py-3 bg-surface-container-highest/40 rounded-lg outline-none focus:ring-2 focus:ring-primary/30"
-/>
+                type="password"
+                placeholder="••••••••"
+                name="password"
+                value={form.password}
+                onChange={handleChange}
+                className="w-full pl-10 pr-4 py-3 bg-surface-container-highest/40 rounded-lg outline-none focus:ring-2 focus:ring-primary/30"
+              />
             </div>
           </div>
 
@@ -132,7 +138,7 @@ const AdminLogin = () => {
           {/* SOCIAL LOGIN */}
           <div className="flex gap-4">
             {/* GOOGLE */}
-            <button className="flex-1 py-3 rounded-lg border border-gray-200 flex items-center justify-center gap-2 hover:bg-gray-50 transition">
+            <button type="button" className="flex-1 py-3 rounded-lg border border-gray-200 flex items-center justify-center gap-2 hover:bg-gray-50 transition">
               <img
                 src="https://www.svgrepo.com/show/475656/google-color.svg"
                 className="w-5 h-5"
@@ -141,7 +147,7 @@ const AdminLogin = () => {
             </button>
 
             {/* iOS */}
-            <button className="flex-1 py-3 rounded-lg border border-gray-200 flex items-center justify-center hover:bg-gray-50 transition">
+            <button type="button" className="flex-1 py-3 rounded-lg border border-gray-200 flex items-center justify-center hover:bg-gray-50 transition">
               <span className="text-sm font-medium">iOS</span>
             </button>
           </div>

@@ -18,6 +18,7 @@ import OrderHistory from "./pages/user/OrderHistory";
 import Profile from "./pages/user/Profile";
 import TicketManagement from "./pages/user/TicketManagement";
 
+import AdminRoute from "./pages/admin/AdminRoute";
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import ManageProducts from "./pages/admin/ManageProducts";
 import AddProduct from "./pages/admin/AddProduct";
@@ -31,7 +32,7 @@ function App() {
   return (
     <BrowserRouter>
 
-      
+
       <ToastContainer position="top-right" autoClose={2000} />
 
       <Routes>
@@ -52,14 +53,69 @@ function App() {
         <Route path="/tickets" element={<TicketManagement />} />
 
         {/* ADMIN */}
-        <Route path="/admin" element={<AdminDashboard />} />
-        <Route path="/admin/tickets" element={<AdminTickets />} />
-        <Route path="/admin/products" element={<ManageProducts />} />
-        <Route path="/admin/add-product" element={<AddProduct />} />
-        <Route path="/manage-orders" element={<ManageOrders />} />
         <Route path="/admin/signup" element={<AdminSignup />} />
         <Route path="/admin/login" element={<AdminLogin />} />
-        <Route path="/admin/ticket/:id" element={<AdminTicketDetails />} />
+
+        <Route
+          path="/admin"
+          element={
+            <AdminRoute>
+              <AdminDashboard />
+            </AdminRoute>
+          }
+        />
+        <Route
+          path="/admin/products"
+          element={
+            <AdminRoute>
+              <ManageProducts />
+            </AdminRoute>
+          }
+        />
+
+        <Route
+          path="/admin/add-product"
+          element={
+            <AdminRoute>
+              <AddProduct />
+            </AdminRoute>
+          }
+        />
+
+        <Route
+          path="/admin/tickets"
+          element={
+            <AdminRoute>
+              <AdminTickets />
+            </AdminRoute>
+          }
+        />
+
+        <Route
+          path="/admin/ticket/:id"
+          element={
+            <AdminRoute>
+              <AdminTicketDetails />
+            </AdminRoute>
+          }
+        />
+
+        <Route
+          path="/manage-orders"
+          element={
+            <AdminRoute>
+              <ManageOrders />
+            </AdminRoute>
+          }
+        />
+        <Route
+          path="/admin/order/:id"
+          element={
+            <AdminRoute>
+              <ManageOrders />
+            </AdminRoute>
+          }
+        />
       </Routes>
     </BrowserRouter>
   );
