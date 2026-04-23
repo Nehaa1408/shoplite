@@ -1,22 +1,41 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
+import adminAxios from "../../api/adminAxios";
+import { toast } from "react-toastify";
+
 
 const AdminTicketDetails = () => {
+    const [reply, setReply] = useState("");
     const navigate = useNavigate();
     const { id } = useParams();
+    const [message, setMessage] = useState("");
+    const showMessage = (msg) => {
+        setMessage(msg);
+    };
+    useEffect(() => {
+        if (!message) return;
 
+        const timer = setTimeout(() => {
+            setMessage("");
+        }, 3000);
+
+        return () => clearTimeout(timer);
+    }, [message]);
     const [ticket, setTicket] = useState(null);
 
-    // ✅ Load ticket from localStorage
     useEffect(() => {
-        const stored = JSON.parse(localStorage.getItem("tickets")) || [];
+        const fetchTicket = async () => {
+            try {
+                const res = await adminAxios.get(`/tickets/${id}`);
+                setTicket(res.data);
+            } catch (err) {
+                console.error("Ticket fetch error:", err);
+            }
+        };
 
-        const found = stored.find(
-            (t) => t.id.replace("#", "") === id
-        );
-
-        setTicket(found);
+        fetchTicket();
     }, [id]);
+
 
     if (!ticket) {
         return (
@@ -45,13 +64,20 @@ const AdminTicketDetails = () => {
 
             {/* MAIN */}
             <main className="flex-1 p-8 space-y-6">
-
+                {message && (
+                    <div className="mb-6 bg-white border border-gray-200 shadow-md rounded-xl p-4">
+                        <div className="bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded-lg flex items-center gap-2">
+                            <span className="text-green-600 font-bold">✔</span>
+                            <span className="font-medium">{message}</span>
+                        </div>
+                    </div>
+                )}
                 {/* TOP */}
                 <div>
                     <p className="text-sm text-gray-500">
                         Support Tickets &gt;{" "}
                         <span className="text-blue-600">
-                            #{ticket.id.replace("#", "")}
+                            #{ticket.id}
                         </span>
                     </p>
 
@@ -69,14 +95,14 @@ const AdminTicketDetails = () => {
                         {/* DESCRIPTION */}
                         <div className="bg-white p-6 rounded-xl shadow">
                             <p className="text-sm text-gray-500 mb-2">Initial Request</p>
-                            <p>{ticket.description || "No description"}</p>
+                            <p>{ticket.message || "No message"}</p>
                         </div>
 
                         {/* CHAT */}
                         <div className="space-y-4">
 
                             <div className="bg-white p-4 rounded-xl shadow">
-                                <p className="text-sm font-bold">{ticket.user || "User"}</p>
+                                <p className="text-sm font-bold">{ticket.user?.name || "User"}</p>
                                 <p className="text-sm mt-1">
                                     {ticket.message || "User message"}
                                 </p>
@@ -94,11 +120,31 @@ const AdminTicketDetails = () => {
                         {/* REPLY BOX */}
                         <div className="bg-white p-6 rounded-xl shadow">
                             <textarea
+                                value={reply}
+                                onChange={(e) => setReply(e.target.value)}
                                 placeholder="Write reply..."
                                 className="w-full border p-3 rounded-lg"
                             />
-                            <button className="mt-4 bg-blue-600 text-white px-4 py-2 rounded-lg">
+
+                            <button
+                                onClick={() => {
+                                    if (!reply.trim()) {
+                                        showMessage(" Reply cannot be empty");
+                                        return;
+                                    }
+
+                                    showMessage(" Reply sent successfully");
+                                    setReply("");
+                                }}
+                                className="mt-4 bg-blue-600 text-white px-4 py-2 rounded-lg"
+                            >
                                 Send
+                            </button>
+                            <button
+                                onClick={() => navigate("/admin/tickets")}
+                                className="bg-gray-200 px-4 py-2 rounded-lg hover:bg-gray-300"
+                            >
+                                ← Back to Tickets
                             </button>
                         </div>
                     </div>
@@ -113,24 +159,41 @@ const AdminTicketDetails = () => {
                             <select
                                 className="w-full mb-3 p-2 border rounded"
                                 value={ticket.status}
-                                onChange={(e) => {
-                                    const updated = { ...ticket, status: e.target.value };
+                                onChange={async (e) => {
+                                    try {
+                                        const value = e.target.value;
 
-                                    const all = JSON.parse(localStorage.getItem("tickets")) || [];
-                                    const newList = all.map((t) =>
-                                        t.id === ticket.id ? updated : t
-                                    );
+                                        const res = await adminAxios.put(
+                                            `/tickets/${ticket.id}?status=${value}`
+                                        );
 
-                                    localStorage.setItem("tickets", JSON.stringify(newList));
-                                    setTicket(updated);
+                                        setTicket(res.data);
+                                        showMessage(`✅ Status updated to ${value.replace("_", " ")}`);
+                                    } catch (err) {
+                                        console.error(err);
+                                        showMessage("❌ Failed to update status");
+                                    }
                                 }}
                             >
-                                <option>Open</option>
-                                <option>In Progress</option>
-                                <option>Resolved</option>
+                                <option value="OPEN">Open</option>
+                                <option value="IN_PROGRESS">In Progress</option>
+                                <option value="RESOLVED">Resolved</option>
                             </select>
 
-                            <button className="w-full bg-blue-600 text-white py-2 rounded-lg">
+                            <button
+                                onClick={async () => {
+                                    try {
+                                        await adminAxios.put(`/tickets/${ticket.id}?status=RESOLVED`);
+                                        setTicket({ ...ticket, status: "RESOLVED" });
+
+                                        showMessage(" Ticket resolved successfully");
+                                    } catch (err) {
+                                        console.error(err);
+                                        showMessage("❌ Failed to resolve ticket");
+                                    }
+                                }}
+                                className="w-full bg-blue-600 text-white py-2 rounded-lg"
+                            >
                                 Resolve Ticket
                             </button>
                         </div>
@@ -138,9 +201,9 @@ const AdminTicketDetails = () => {
                         {/* USER */}
                         <div className="bg-white p-6 rounded-xl shadow">
                             <h3 className="font-bold mb-2">Customer</h3>
-                            <p>{ticket.user || "User"}</p>
+                            <p>{ticket.user?.name || "User"}</p>
                             <p className="text-sm text-gray-500">
-                                Priority: {ticket.priority}
+                                Priority: Normal
                             </p>
                         </div>
 

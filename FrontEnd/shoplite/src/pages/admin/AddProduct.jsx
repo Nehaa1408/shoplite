@@ -1,11 +1,63 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-
+import adminAxios from "../../api/adminAxios";
 const AddProduct = () => {
   const navigate = useNavigate();
   const location = useLocation();
+  const editProduct = location.state;
   const isActive = (path) => location.pathname === path;
+  const [form, setForm] = useState({
+    name: "",
+    price: "",
+    imageUrl: "",
+    quantity: "",
+    description: "",
+    category: ""
+  });
+  useEffect(() => {
+    if (editProduct) {
+      setForm({
+        name: editProduct.name || "",
+        price: editProduct.price || "",
+        imageUrl: editProduct.imageUrl || "",
+        quantity: editProduct.quantity || "",
+        description: editProduct.description || "",
+        category: editProduct.category || ""
+      });
+    }
+  }, [editProduct]);
+  const handleChange = (e) => {
+    setForm({
+      ...form,
+      [e.target.name]: e.target.value
+    });
+  };
+  const handleSubmit = async () => {
 
+    try {
+      if (!form.name || !form.price || !form.imageUrl || !form.quantity) {
+        alert("Please fill all required fields");
+        return;
+      }
+      const payload = {
+        ...form,
+        price: parseFloat(form.price) || 0,
+        quantity: parseInt(form.quantity) || 0
+      };
+
+      if (editProduct) {
+
+        await adminAxios.put(`/api/products/${editProduct.id}`, payload);
+      } else {
+
+        await adminAxios.post("/api/products", payload);
+      }
+
+      navigate("/admin/products");
+    } catch (err) {
+      console.error(err);
+    }
+  };
   return (
     <div className="bg-surface text-on-surface min-h-screen">
       {/* TOP NAV */}
@@ -141,6 +193,9 @@ const AddProduct = () => {
                       Product Name
                     </label>
                     <input
+                      name="name"
+                      value={form.name}
+                      onChange={handleChange}
                       placeholder="e.g. Premium Wireless Headphones"
                       className="w-full bg-surface-container-highest/40 px-4 py-3 rounded-lg outline-none"
                     />
@@ -152,7 +207,9 @@ const AddProduct = () => {
                   <label className="text-sm font-semibold text-on-surface-variant mb-2 block">
                     Category
                   </label>
-                  <select className="w-full bg-surface-container-highest/40 px-4 py-3 rounded-lg outline-none">
+                  <select name="category"
+                    value={form.category}
+                    onChange={handleChange} className="w-full bg-surface-container-highest/40 px-4 py-3 rounded-lg outline-none">
                     <option>Select Category</option>
                     <option>Electronics</option>
                     <option>Wearables</option>
@@ -171,7 +228,10 @@ const AddProduct = () => {
                       $
                     </span>
                     <input
+                      name="price"
+                      value={form.price}
                       placeholder="0.00"
+                      onChange={handleChange}
                       className="w-full pl-8 pr-4 py-3 bg-surface-container-highest/40 rounded-lg outline-none"
                     />
                   </div>
@@ -194,6 +254,9 @@ const AddProduct = () => {
                     Product Description
                   </label>
                   <textarea
+                    name="description"
+                    value={form.description}
+                    onChange={handleChange}
                     rows={5}
                     placeholder="Provide a detailed description..."
                     className="w-full bg-surface-container-highest/40 px-4 py-3 rounded-lg outline-none"
@@ -226,7 +289,13 @@ const AddProduct = () => {
                 <p className="text-xs text-on-surface-variant">
                   Support JPG, PNG and SVG (Max 5MB)
                 </p>
-
+                <input
+                  name="imageUrl"
+                  value={form.imageUrl}
+                  onChange={handleChange}
+                  placeholder="Paste image URL"
+                  className="w-full mt-4 bg-surface-container-highest/40 px-4 py-3 rounded-lg outline-none"
+                />
                 <button className="text-primary font-bold mt-4">
                   Browse Files
                 </button>
@@ -288,8 +357,11 @@ const AddProduct = () => {
             Cancel
           </button>
 
-          <button className="px-8 py-3 bg-gradient-to-r from-primary to-primary-container text-white rounded-lg font-bold">
-            Add Product
+          <button
+            onClick={handleSubmit}
+            className="px-8 py-3 bg-gradient-to-r from-primary to-primary-container text-white rounded-lg font-bold"
+          >
+            {editProduct ? "Update Product" : "Add Product"}
           </button>
         </div>
       </main>
