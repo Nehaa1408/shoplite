@@ -82,20 +82,7 @@ const ManageOrders = () => {
               <span className="material-symbols-outlined">inventory_2</span>
               Manage Products
             </div>
-            {/* Tickets */}
-            <div
-              onClick={() => navigate("/admin/tickets")}
-              className={`flex items-center gap-3 px-4 py-3 rounded-lg cursor-pointer transition
-  ${isActive("/admin/tickets")
-                  ? "bg-gradient-to-r from-primary to-primary-container text-white shadow-lg"
-                  : "hover:bg-surface-container"
-                }`}
-            >
-              <span className="material-symbols-outlined">
-                confirmation_number
-              </span>
-              Tickets
-            </div>
+
 
             {/* ADD PRODUCT */}
             <div
@@ -120,6 +107,20 @@ const ManageOrders = () => {
                 shopping_cart
               </span>
               Manage Orders
+            </div>
+            {/* Tickets */}
+            <div
+              onClick={() => navigate("/admin/tickets")}
+              className={`flex items-center gap-3 px-4 py-3 rounded-lg cursor-pointer transition
+  ${isActive("/admin/tickets")
+                  ? "bg-gradient-to-r from-primary to-primary-container text-white shadow-lg"
+                  : "hover:bg-surface-container"
+                }`}
+            >
+              <span className="material-symbols-outlined">
+                confirmation_number
+              </span>
+              Tickets
             </div>
           </nav>
         </div>

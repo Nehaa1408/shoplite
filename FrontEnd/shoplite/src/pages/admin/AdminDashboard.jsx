@@ -124,7 +124,10 @@ const AdminDashboard = () => {
           <span className="material-symbols-outlined">notifications</span>
           <span className="material-symbols-outlined">settings</span>
 
-          <div className="w-9 h-9 rounded-full flex items-center justify-center bg-primary/10 text-primary cursor-pointer">
+          <div
+            onClick={() => navigate("/admin/profile")}
+            className="w-9 h-9 rounded-full flex items-center justify-center bg-primary/10 text-primary cursor-pointer"
+          >
             <span className="material-symbols-outlined">account_circle</span>
           </div>
         </div>

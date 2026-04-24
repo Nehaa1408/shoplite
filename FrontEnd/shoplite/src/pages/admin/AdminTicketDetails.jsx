@@ -5,13 +5,20 @@ import { toast } from "react-toastify";
 
 
 const AdminTicketDetails = () => {
+
     const [reply, setReply] = useState("");
     const navigate = useNavigate();
+
     const { id } = useParams();
+    const isActive = (path) => location.pathname === path;
+
     const [message, setMessage] = useState("");
+
     const showMessage = (msg) => {
         setMessage(msg);
     };
+
+
     useEffect(() => {
         if (!message) return;
 
@@ -49,21 +56,91 @@ const AdminTicketDetails = () => {
         <div className="flex min-h-screen bg-[#f9f5ff] text-[#2b2a51]">
 
             {/* SIDEBAR */}
-            <aside className="w-64 p-6 border-r bg-white hidden md:flex flex-col">
-                <h1 className="text-xl font-black text-blue-600 mb-10">
-                    ShopLite Admin
-                </h1>
+            <aside className="fixed left-0 top-16 bottom-0 w-64 p-4 hidden md:flex flex-col border-r border-outline-variant/15 bg-surface">
+                {/* TOP BRAND */}
+                <div className="mb-8 px-2">
+                    <div className="flex items-center gap-3 p-2">
+                        <div className="w-10 h-10 bg-primary-container/20 rounded-xl flex items-center justify-center text-primary">
+                            <span
+                                className="material-symbols-outlined"
+                                style={{ fontVariationSettings: "'FILL' 1" }}
+                            >
+                                storefront
+                            </span>
+                        </div>
 
-                <nav className="space-y-3">
-                    <div onClick={() => navigate("/admin")} className="cursor-pointer">Dashboard</div>
-                    <div onClick={() => navigate("/admin/products")} className="cursor-pointer">Products</div>
-                    <div onClick={() => navigate("/manage-orders")} className="cursor-pointer">Orders</div>
-                    <div className="font-bold text-blue-600">Tickets</div>
+                        <div>
+                            <p className="font-bold text-primary text-sm">ShopLite Admin</p>
+                            <p className="text-[10px] text-on-surface-variant uppercase tracking-widest font-bold">
+                                MANAGEMENT CONSOLE
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                {/* NAV */}
+                <nav className="flex-1 space-y-1">
+                    <div
+                        onClick={() => navigate("/admin")}
+                        className={`flex items-center gap-3 px-4 py-3 rounded-lg cursor-pointer transition
+               ${isActive("/admin")
+                                ? "bg-gradient-to-r from-primary to-primary-container text-white shadow-lg"
+                                : "hover:bg-surface-container"
+                            }`}
+                    >
+                        <span className="material-symbols-outlined">dashboard</span>
+                        Dashboard
+                    </div>
+
+
+                    {/* Manage Products */}
+                    <div
+                        onClick={() => navigate("/admin/products")}
+                        className={`flex items-center gap-3 px-4 py-3 rounded-lg cursor-pointer transition
+            ${isActive("/admin/products")
+                                ? "bg-gradient-to-r from-primary to-primary-container text-white shadow-lg"
+                                : "hover:bg-surface-container"
+                            }`}
+                    >
+                        <span className="material-symbols-outlined">inventory_2</span>
+                        Manage Products
+                    </div>
+                    {/* Add Product */}
+                    <div
+                        onClick={() => navigate("/admin/add-product")}
+                        className="flex items-center gap-3 px-4 py-3 rounded-lg cursor-pointer hover:bg-surface-container"
+                    >
+                        <span className="material-symbols-outlined">add_box</span>
+                        Add Product
+                    </div>
+
+                    {/* Manage Orders */}
+                    <div
+                        onClick={() => navigate("/manage-orders")}
+                        className="flex items-center gap-3 px-4 py-3 rounded-lg cursor-pointer hover:bg-surface-container hover:text-primary transition-all duration-200"
+                    >
+                        <span className="material-symbols-outlined">shopping_cart</span>
+                        Manage Orders
+                    </div>
+                    {/* Tickets */}
+                    {/* Tickets */}
+                    <div
+                        onClick={() => navigate("/admin/tickets")}
+                        className={`flex items-center gap-3 px-4 py-3 rounded-lg cursor-pointer transition
+            ${isActive("/admin/tickets")
+                                ? "bg-gradient-to-r from-primary to-primary-container text-white shadow-lg"
+                                : "hover:bg-surface-container"
+                            }`}
+                    >
+                        <span className="material-symbols-outlined">
+                            confirmation_number
+                        </span>
+                        Tickets
+                    </div>
                 </nav>
             </aside>
 
             {/* MAIN */}
-            <main className="flex-1 p-8 space-y-6">
+            <main className="flex-1 ml-64 mt-16 p-8 space-y-6">
                 {message && (
                     <div className="mb-6 bg-white border border-gray-200 shadow-md rounded-xl p-4">
                         <div className="bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded-lg flex items-center gap-2">

@@ -27,6 +27,7 @@ import AdminSignup from "./pages/admin/AdminSignup";
 import AdminLogin from "./pages/admin/AdminLogin";
 import AdminTickets from "./pages/admin/AdminTickets";
 import AdminTicketDetails from "./pages/admin/AdminTicketDetails";
+import AdminProfile from "./pages/admin/AdminProfile";
 
 function App() {
   return (
@@ -113,6 +114,14 @@ function App() {
           element={
             <AdminRoute>
               <ManageOrders />
+            </AdminRoute>
+          }
+        />
+        <Route
+          path="/admin/profile"
+          element={
+            <AdminRoute>
+              <AdminProfile/>
             </AdminRoute>
           }
         />
