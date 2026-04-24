@@ -5,6 +5,7 @@ import adminAxios from "../../api/adminAxios";
 const AdminDashboard = () => {
   const navigate = useNavigate();
   const location = useLocation();
+  const [showLogoutModal, setShowLogoutModal] = useState(false);
 
   const isActive = (path) => location.pathname === path;
 
@@ -52,14 +53,16 @@ const AdminDashboard = () => {
 
     fetchStats();
   }, []);
-
-  // ✅ LOGOUT
+  
   const handleLogout = () => {
-    sessionStorage.removeItem("adminToken");
-    sessionStorage.removeItem("adminRole");
-    navigate("/admin/login");
+    setShowLogoutModal(true);
   };
 
+  const confirmLogout = () => {
+    sessionStorage.removeItem("adminToken");
+    sessionStorage.removeItem("adminRole"); // keep this
+    navigate("/admin/login", { replace: true });
+  };
   // ✅ STATS DISPLAY
   const stats = [
     {
@@ -398,7 +401,52 @@ shadow-[0px_12px_32px_rgba(43,42,81,0.06)] border border-outline-variant/5"
           </div>
         </div>
       </main>
+
+
+      {/* LOGOUT MODAL */}
+      {showLogoutModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm">
+
+          <div className="bg-white rounded-2xl shadow-2xl w-[350px] p-6 animate-scaleIn" onClick={(e) => e.stopPropagation()}>
+
+            <div className="flex justify-center mb-4">
+              <div className="w-16 h-16 rounded-full bg-red-100 flex items-center justify-center">
+                <span className="material-symbols-outlined text-red-500 text-3xl">
+                  logout
+                </span>
+              </div>
+            </div>
+
+            <h2 className="text-lg font-bold text-center mb-2">
+              Logout?
+            </h2>
+
+            <p className="text-sm text-gray-500 text-center mb-6">
+              Are you sure you want to logout from your admin account?
+            </p>
+
+            <div className="flex gap-3">
+              <button
+                onClick={() => setShowLogoutModal(false)}
+                className="flex-1 py-2 rounded-xl bg-gray-100 hover:bg-gray-200 transition"
+              >
+                Cancel
+              </button>
+
+              <button
+                onClick={confirmLogout}
+                className="flex-1 py-2 rounded-xl bg-red-500 text-white hover:bg-red-600 transition"
+              >
+                Logout
+              </button>
+            </div>
+
+          </div>
+        </div>
+      )}
+
     </div>
+
   );
 };
 

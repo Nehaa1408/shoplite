@@ -51,6 +51,7 @@ const AdminTicketDetails = () => {
             </div>
         );
     }
+    
 
     return (
         <div className="flex min-h-screen bg-[#f9f5ff] text-[#2b2a51]">
