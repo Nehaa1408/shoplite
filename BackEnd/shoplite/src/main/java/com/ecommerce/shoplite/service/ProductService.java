@@ -1,6 +1,6 @@
 package com.ecommerce.shoplite.service;
 
-import java.util.List;
+
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -20,8 +20,10 @@ public class ProductService {
         return productRepository.save(product);
     }
 
-    public List<Product> getAllProducts() {
-        return productRepository.findAll();
+    public org.springframework.data.domain.Page<Product> getProducts(int page, int size) {
+        org.springframework.data.domain.Pageable pageable = org.springframework.data.domain.PageRequest.of(page, size);
+
+        return productRepository.findAll(pageable);
     }
 
     public Product getProductById(Long id) {

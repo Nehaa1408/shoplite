@@ -33,12 +33,20 @@ const AddProduct = () => {
     });
   };
   const handleSubmit = async () => {
-
     try {
-      if (!form.name || !form.price || !form.imageUrl || !form.quantity) {
-        alert("Please fill all required fields");
+      let errors = [];
+
+      if (!form.name.trim()) errors.push("Product Name");
+      if (!form.category || form.category === "Select Category") errors.push("Category");
+      if (!form.price) errors.push("Price");
+      if (!form.quantity) errors.push("Quantity");
+      if (!form.imageUrl.trim()) errors.push("Image URL");
+
+      if (errors.length > 0) {
+        alert("Please fill: " + errors.join(", "));
         return;
       }
+
       const payload = {
         ...form,
         price: parseFloat(form.price) || 0,
@@ -46,14 +54,13 @@ const AddProduct = () => {
       };
 
       if (editProduct) {
-
         await adminAxios.put(`/api/products/${editProduct.id}`, payload);
       } else {
-
         await adminAxios.post("/api/products", payload);
       }
 
       navigate("/admin/products");
+
     } catch (err) {
       console.error(err);
     }
@@ -211,7 +218,7 @@ const AddProduct = () => {
                   <select name="category"
                     value={form.category}
                     onChange={handleChange} className="w-full bg-surface-container-highest/40 px-4 py-3 rounded-lg outline-none">
-                    <option>Select Category</option>
+                    <option value="">Select Category</option>
                     <option>Electronics</option>
                     <option>Wearables</option>
                     <option>Footwear</option>
@@ -241,10 +248,13 @@ const AddProduct = () => {
                 {/* SKU */}
                 <div>
                   <label className="text-sm font-semibold text-on-surface-variant mb-2 block">
-                    SKU (Stock Keeping Unit)
+                    Quantity
                   </label>
                   <input
-                    placeholder="SL-9920-PR"
+                    name="quantity"
+                    value={form.quantity}
+                    onChange={handleChange}
+                    placeholder="Enter stock quantity"
                     className="w-full bg-surface-container-highest/40 px-4 py-3 rounded-lg outline-none"
                   />
                 </div>

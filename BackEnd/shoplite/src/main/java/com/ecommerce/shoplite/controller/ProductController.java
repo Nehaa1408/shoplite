@@ -1,7 +1,5 @@
 package com.ecommerce.shoplite.controller;
 
-import java.util.List;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -30,8 +28,11 @@ public class ProductController {
     }
 
     @GetMapping
-    public List<Product> getAllProducts() {
-        return productService.getAllProducts();
+    public org.springframework.data.domain.Page<Product> getProducts(
+            @org.springframework.web.bind.annotation.RequestParam(defaultValue = "0") int page,
+            @org.springframework.web.bind.annotation.RequestParam(defaultValue = "6") int size) {
+
+        return productService.getProducts(page, size);
     }
 
     @DeleteMapping("/{id}")

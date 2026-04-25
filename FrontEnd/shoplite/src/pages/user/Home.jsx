@@ -1,6 +1,20 @@
 import React from "react";
 import { useCart } from "../../context/CartContext";
 import { useNavigate } from "react-router-dom";
+import {
+  MdHome,
+  MdCategory,
+  MdLocalOffer,
+  MdStars,
+  MdReceipt,
+  MdConfirmationNumber,
+  MdSearch,
+  MdShoppingCart,
+  MdAccountCircle,
+  MdChevronLeft,
+  MdChevronRight,
+  MdAddShoppingCart
+} from "react-icons/md";
 import axios from "axios";
 const Home = () => {
   const [products, setProducts] = React.useState([]);
@@ -8,6 +22,8 @@ const Home = () => {
   const navigate = useNavigate();
   const { addToCart, cart } = useCart();
   const [searchTerm, setSearchTerm] = React.useState("");
+  const [currentPage, setCurrentPage] = React.useState(1);
+
   const handleProfileClick = () => {
     const token = localStorage.getItem("token");
 
@@ -20,8 +36,11 @@ const Home = () => {
   React.useEffect(() => {
     const fetchProducts = async () => {
       try {
-        const res = await axios.get("http://localhost:8080/api/products");
-        setProducts(res.data);
+        const res = await axios.get(
+          `http://localhost:8080/api/products?page=${currentPage - 1}&size=4`
+        );
+        setProducts(res.data.content);
+        setTotalPages(res.data.totalPages);
       } catch (err) {
         console.error(err);
       } finally {
@@ -30,9 +49,9 @@ const Home = () => {
     };
 
     fetchProducts();
-  }, []);
+  }, [currentPage]);
 
-  const [currentPage, setCurrentPage] = React.useState(1);
+
   const productsPerPage = 6;
 
 
@@ -42,7 +61,7 @@ const Home = () => {
     desc: p.description,
     price: `$${p.price}`,
     priceValue: p.price,
-    image: p.imageUrl,
+    image: `/products/${p.imageUrl}`
   }));
   const allProducts = backendProducts;
 
@@ -54,13 +73,9 @@ const Home = () => {
       product.desc.toLowerCase().includes(searchTerm.toLowerCase())
     );
   });
-  const startIndex = (currentPage - 1) * productsPerPage;
-  const currentProducts = filteredProducts.slice(
-    startIndex,
-    startIndex + productsPerPage,
-  );
+  const currentProducts = filteredProducts;
 
-  const totalPages = Math.ceil(filteredProducts.length / productsPerPage);
+  const [totalPages, setTotalPages] = React.useState(1);
 
   return (
     <div className="bg-surface text-on-background min-h-screen flex flex-col glow-bg">
@@ -80,9 +95,7 @@ const Home = () => {
             className="w-full bg-surface-container-highest/40 border-none rounded-sm px-10 py-2 text-sm focus:ring-2 focus:ring-primary-fixed-dim/30 focus:bg-surface-container-lowest transition-all"
             placeholder="Search products..."
           />
-          <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant text-sm">
-            search
-          </span>
+          <MdSearch size={18} className="absolute left-3 top-1/2 -translate-y-1/2" />
         </div>
 
         <div className="flex items-center gap-4">
@@ -90,7 +103,7 @@ const Home = () => {
             onClick={() => navigate("/cart")}
             className="p-2 rounded-lg text-[#2b2a51] opacity-70 hover:bg-[#f2f1ff] transition relative"
           >
-            <span className="material-symbols-outlined">shopping_cart</span>
+            <MdShoppingCart size={22} />
 
             {cart.length > 0 && (
               <span className="absolute -top-1 -right-1 bg-primary text-white text-[10px] px-1.5 py-0.5 rounded-full">
@@ -99,7 +112,7 @@ const Home = () => {
             )}
           </button>
           <button onClick={handleProfileClick}>
-            <span className="material-symbols-outlined">account_circle</span>
+            <MdAccountCircle size={22} />
           </button>
         </div>
       </nav>
@@ -107,76 +120,78 @@ const Home = () => {
       {/* Main */}
       <main className="flex-grow pt-16 flex  w-full">
         {/* Sidebar */}
-        <aside className="hidden lg:flex flex-col gap-y-2 p-6 h-screen w-64 fixed left-0 border-r border-[#aba9d7]/15 bg-[#f9f5ff] pt-20">
-          {/* Title */}
-          <div className="mb-6">
-            <h2 className="text-[#0846ed] text-lg font-bold font-['Manrope']">
-              Explore
-            </h2>
-            <p className="text-sm text-[#2b2a51]/60">
-              Navigate through ShopLite
-            </p>
-          </div>
-
-          {/* Navigation */}
-          <nav className="space-y-1">
-            {/* Home */}
-            <div
-              onClick={() => navigate("/")}
-              className="flex items-center gap-3 p-3 hover:text-[#0846ed] hover:bg-[#f2f1ff] transition cursor-pointer rounded-lg"
-            >
-              <span className="material-symbols-outlined">home</span>
-              Home
+        <div className="lg:w-64 hidden lg:block">
+          <aside className="hidden lg:flex flex-col gap-y-2 p-6 h-screen w-64 fixed left-0 border-r border-[#aba9d7]/15 bg-[#f9f5ff] pt-20">
+            {/* Title */}
+            <div className="mb-6">
+              <h2 className="text-[#0846ed] text-lg font-bold font-['Manrope']">
+                Explore
+              </h2>
+              <p className="text-sm text-[#2b2a51]/60">
+                Navigate through ShopLite
+              </p>
             </div>
 
-            {/* Categories */}
-            <div
-              onClick={() => navigate("/categories")}
-              className="flex items-center gap-3 p-3 hover:text-[#0846ed] hover:bg-[#f2f1ff] transition cursor-pointer rounded-lg"
-            >
-              <span className="material-symbols-outlined">category</span>
-              Categories
-            </div>
+            {/* Navigation */}
+            <nav className="space-y-1">
+              {/* Home */}
+              <div
+                onClick={() => navigate("/")}
+                className="flex items-center gap-3 p-3 hover:text-[#0846ed] hover:bg-[#f2f1ff] transition cursor-pointer rounded-lg"
+              >
+                {!loading && (
+                  <MdHome size={20} />
+                )}
+                Home
+              </div>
 
-            {/* Brands */}
-            <div
-              onClick={() => navigate("/brands")}
-              className="flex items-center gap-3 p-3 hover:text-[#0846ed] hover:bg-[#f2f1ff] transition cursor-pointer rounded-lg"
-            >
-              <span className="material-symbols-outlined">loyalty</span>
-              Brands
-            </div>
+              {/* Categories */}
+              <div
+                onClick={() => navigate("/categories")}
+                className="flex items-center gap-3 p-3 hover:text-[#0846ed] hover:bg-[#f2f1ff] transition cursor-pointer rounded-lg"
+              >
+                {!loading && (
+                  <MdCategory size={20} />)}
+                Categories
+              </div>
 
-            {/* Top Deals */}
-            <div
-              onClick={() => navigate("/top-deals")}
-              className="flex items-center gap-3 p-3 hover:text-[#0846ed] hover:bg-[#f2f1ff] transition cursor-pointer rounded-lg"
-            >
-              <span className="material-symbols-outlined">stars</span>
-              Top Deals
-            </div>
-            {/* Order History */}
-            <div
-              onClick={() => navigate("/orders")}
-              className="flex items-center gap-3 p-3 hover:text-[#0846ed] hover:bg-[#f2f1ff] transition cursor-pointer rounded-lg"
-            >
-              <span className="material-symbols-outlined">receipt_long</span>
-              Order History
-            </div>
-            <div
-              onClick={() => navigate("/tickets")}
-              className="flex items-center gap-3 p-3 hover:text-[#0846ed] hover:bg-[#f2f1ff] transition cursor-pointer rounded-lg"
-            >
-              <span className="material-symbols-outlined">
-                confirmation_number
-              </span>
-              Ticket Management
-            </div>
-          </nav>
-        </aside>
+              {/* Brands */}
+              <div
+                onClick={() => navigate("/brands")}
+                className="flex items-center gap-3 p-3 hover:text-[#0846ed] hover:bg-[#f2f1ff] transition cursor-pointer rounded-lg"
+              >
+                {!loading && (<MdLocalOffer size={20} />)}
+                Brands
+              </div>
 
+              {/* Top Deals */}
+              <div
+                onClick={() => navigate("/top-deals")}
+                className="flex items-center gap-3 p-3 hover:text-[#0846ed] hover:bg-[#f2f1ff] transition cursor-pointer rounded-lg"
+              >
+                {!loading && (<MdStars size={20} />)}
+                Top Deals
+              </div>
+              {/* Order History */}
+              <div
+                onClick={() => navigate("/orders")}
+                className="flex items-center gap-3 p-3 hover:text-[#0846ed] hover:bg-[#f2f1ff] transition cursor-pointer rounded-lg"
+              >
+                {!loading && (<MdReceipt size={20} />)}
+                Order History
+              </div>
+              <div
+                onClick={() => navigate("/tickets")}
+                className="flex items-center gap-3 p-3 hover:text-[#0846ed] hover:bg-[#f2f1ff] transition cursor-pointer rounded-lg"
+              >
+                {!loading && (<MdConfirmationNumber size={20} />)}
+                Ticket Management
+              </div>
+            </nav>
+          </aside>
+        </div>
         {/* RIGHT SIDE CONTENT */}
-        <div className="flex-1 lg:ml-64">
+        <div className="flex-1 ">
           {/* HERO SECTION */}
           <section className="px-8 md:px-12 py-16">
             <div className="flex flex-col lg:flex-row items-center justify-between gap-12">
@@ -205,10 +220,16 @@ const Home = () => {
 
               {/* RIGHT IMAGE */}
               <div className="relative">
-                <img
-                  src="https://lh3.googleusercontent.com/aida-public/AB6AXuAH94kYs6-Y66d0xsysVG-JbvFSFtbp-Svb_9yKITM7TRKIoqXeUh98v5XXrAU3k5kYs6ZmFjJiPbLjNC-u7si8Xvv4w2w5q_iV8Q90VTaoddIaNgVAj6T0Z9GwWraDnTJ6RSE4LbsiGPPG9hELH4C_4H2bF_5k-7qZxWHPrabyrK69W6Q3l3RQT5dVH_cjAUqrbJ1yL9l7xPqBEWYr7oXszEYuflK87kOtAXT9wOhfNV9OEb2Ab5PaKGU7XFxt1Gu9VqlXmInegq8"
-                  className="w-full max-w-md rounded-3xl shadow-[0_20px_60px_rgba(8,70,237,0.2)]"
-                />
+                <div style={{ width: "400px", height: "500px" }}>
+                  <img
+                    src={`${import.meta.env.BASE_URL}products/p1.webp`}
+                    loading="eager"
+                    fetchPriority="high"
+                    width="400"
+                    height="500"
+                    className="w-full max-w-md rounded-3xl shadow-[0_20px_60px_rgba(8,70,237,0.2)]"
+                  />
+                </div>
 
                 <div className="absolute -top-10 -left-10 w-40 h-40 bg-primary/20 blur-3xl rounded-full"></div>
               </div>
@@ -233,101 +254,113 @@ const Home = () => {
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-8">
-              {currentProducts.map((product) => (
-                <div
-                  key={product.id}
-                  onClick={() => navigate(`/product/${product.id}`)}
-                  className="group relative flex flex-col bg-surface-container-lowest rounded-xl overflow-hidden shadow-[0_12px_32px_rgba(43,42,81,0.06)] hover:shadow-[0_20px_48px_rgba(8,70,237,0.1)] transition-all duration-500 hover:-translate-y-1 cursor-pointer"
-                >
-                  <div className="aspect-[4/5] overflow-hidden bg-surface-container relative">
-                    <img
-                      src={product.image}
-                      className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
-                    />
-
-                    {product.tag && (
-                      <div
-                        className={`absolute top-4 right-4 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider ${product.tag === "Sale"
-                          ? "bg-primary text-on-primary"
-                          : "bg-white/90 backdrop-blur-md text-primary"
-                          }`}
-                      >
-                        {product.tag}
-                      </div>
-                    )}
-                  </div>
-
-                  <div className="p-6 flex flex-col flex-grow">
-                    <h3 className="text-lg font-bold text-on-surface mb-1 group-hover:text-primary transition-colors">
-                      {product.name}
-                    </h3>
-
-                    <p className="text-on-surface-variant text-sm mb-4">
-                      {product.desc}
-                    </p>
-
-                    <div className="mt-auto flex items-center justify-between">
-                      <span className="text-xl font-black text-on-surface">
-                        {product.price}
-                      </span>
-
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          addToCart(product);
+              {loading ? (
+                [...Array(6)].map((_, i) => (
+                  <div
+                    key={i}
+                    className="h-[350px] bg-gray-200 animate-pulse rounded-xl"
+                  ></div>
+                ))
+              ) : (
+                currentProducts.map((product) => (
+                  <div
+                    key={product.id}
+                    onClick={() => navigate(`/product/${product.id}`)}
+                    className="group relative flex flex-col bg-surface-container-lowest rounded-xl overflow-hidden shadow-[0_12px_32px_rgba(43,42,81,0.06)] hover:shadow-[0_20px_48px_rgba(8,70,237,0.1)] transition-all duration-200 hover:-translate-y-1 cursor-pointer"
+                  >
+                    <div className=" overflow-hidden bg-surface-container relative">
+                      <img
+                        src={product.image}
+                        loading="lazy"
+                        decoding="async"
+                        onError={(e) => {
+                          e.target.src = "/products/p1.webp";
                         }}
-                        className="bg-gradient-to-br from-primary to-primary-container text-on-primary p-3 rounded-xl shadow-lg hover:shadow-primary/40 active:scale-95 transition-all duration-300"
-                      >
-                        <span className="material-symbols-outlined">
-                          add_shopping_cart
+                        className="w-full object-cover transition-transform duration-700 group-hover:scale-105"
+                      />
+
+                      {product.tag && (
+                        <div
+                          className={`absolute top-4 right-4 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider ${product.tag === "Sale"
+                            ? "bg-primary text-on-primary"
+                            : "bg-white/90 backdrop-blur-md text-primary"
+                            }`}
+                        >
+                          {product.tag}
+                        </div>
+                      )}
+                    </div>
+
+                    <div className="p-6 flex flex-col flex-grow">
+                      <h3 className="text-lg font-bold text-on-surface mb-1 group-hover:text-primary transition-colors">
+                        {product.name}
+                      </h3>
+
+                      <p className="text-on-surface-variant text-sm mb-4">
+                        {product.desc}
+                      </p>
+
+                      <div className="mt-auto flex items-center justify-between">
+                        <span className="text-xl font-black text-on-surface">
+                          {product.price}
                         </span>
-                      </button>
+
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            addToCart(product);
+                          }}
+                          className="bg-gradient-to-br from-primary to-primary-container text-on-primary p-3 rounded-xl shadow-lg hover:shadow-primary/40 active:scale-95 transition-all duration-300"
+                        >
+                          <MdAddShoppingCart size={20} />
+                        </button>
+                      </div>
                     </div>
                   </div>
-                </div>
-              ))}
+                ))
+              )}
+            </div>
+          </section>
+          {/* Pagination */}
+          <section>
+            <div className="mt-20 flex justify-center items-center gap-4">
+              <button
+                onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+                className="p-2 rounded-lg border border-outline-variant/30 text-on-surface-variant hover:bg-surface-container-low transition-colors"
+              >
+                <MdChevronLeft size={20} />
+              </button>
+              <div className="flex gap-2">
+                {[...Array(totalPages)].map((_, i) => (
+                  <button
+                    key={i}
+                    onClick={() => setCurrentPage(i + 1)}
+                    className={`w-10 h-10 rounded-lg font-semibold ${currentPage === i + 1
+                      ? "bg-primary/10 text-primary"
+                      : "text-on-surface-variant hover:bg-surface-container-high"
+                      }`}
+                  >
+                    {i + 1}
+                  </button>
+                ))}
+              </div>
+
+              <button
+                onClick={() =>
+                  setCurrentPage((prev) => Math.min(prev + 1, totalPages))
+                }
+                className="p-2 rounded-lg border border-outline-variant/30 text-on-surface-variant hover:bg-surface-container-low transition-colors"
+              >
+                <MdChevronRight size={20} />
+              </button>
             </div>
           </section>
         </div>
-        {/* Pagination */}
-        <section>
-          <div className="mt-20 flex justify-center items-center gap-4">
-            <button
-              onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
-              className="p-2 rounded-lg border border-outline-variant/30 text-on-surface-variant hover:bg-surface-container-low transition-colors"
-            >
-              <span className="material-symbols-outlined">chevron_left</span>
-            </button>
 
-            <div className="flex gap-2">
-              {[...Array(totalPages)].map((_, i) => (
-                <button
-                  key={i}
-                  onClick={() => setCurrentPage(i + 1)}
-                  className={`w-10 h-10 rounded-lg font-semibold ${currentPage === i + 1
-                    ? "bg-primary text-on-primary"
-                    : "hover:bg-surface-container-high"
-                    }`}
-                >
-                  {i + 1}
-                </button>
-              ))}
-            </div>
-
-            <button
-              onClick={() =>
-                setCurrentPage((prev) => Math.min(prev + 1, totalPages))
-              }
-              className="p-2 rounded-lg border border-outline-variant/30 text-on-surface-variant hover:bg-surface-container-low transition-colors"
-            >
-              <span className="material-symbols-outlined">chevron_right</span>
-            </button>
-          </div>
-        </section>
-      </main>
+      </main >
 
       {/* Footer */}
-      <footer className="w-full py-10 border-t border-[#aba9d7]/15 bg-[#f9f5ff]">
+      < footer className="w-full py-10 border-t border-[#aba9d7]/15 bg-[#f9f5ff]" >
         <div className="lg:ml-64 px-6 flex flex-col md:flex-row justify-between items-center gap-3">
           <div className="font-['Manrope'] font-bold text-[#0846ed] text-lg">
             ShopLite
@@ -349,8 +382,8 @@ const Home = () => {
             © 2024 ShopLite Luminous Editorial. All rights reserved.
           </div>
         </div>
-      </footer>
-    </div>
+      </footer >
+    </div >
   );
 };
 
