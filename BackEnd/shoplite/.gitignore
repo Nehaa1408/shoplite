@@ -31,3 +31,13 @@ build/
 
 ### VS Code ###
 .vscode/
+
+# Secrets / Environment files
+.env
+.env.*
+application.properties
+application.yml
+application-dev.properties
+
+# OS / random
+.DS_Store
