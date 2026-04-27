@@ -181,7 +181,7 @@ const AddProduct = () => {
         </p>
 
         {/* GRID */}
-        <div className="grid lg:grid-cols-3 gap-8">
+        <div className="flex flex-col gap-8">
           {/* LEFT */}
           <div className="lg:col-span-2 space-y-6">
             {/* BASIC INFO */}
@@ -314,7 +314,21 @@ const AddProduct = () => {
 
               {/* Preview Card */}
               <div className="mt-6 flex items-center gap-4 p-4 bg-surface-container-low rounded-lg">
-                <div className="w-12 h-12 bg-gray-300 rounded overflow-hidden"></div>
+                {form.imageUrl ? (
+                  <img
+                    src={
+                      form.imageUrl.startsWith("http")
+                        ? form.imageUrl
+                        : `/products/${form.imageUrl}`
+                    }
+                    className="w-30 h-30 object-cover rounded-xl shadow"
+                    onError={(e) => {
+                      e.target.src = "/products/p1.webp";
+                    }}
+                  />
+                ) : (
+                  <div className="w-12 h-12 bg-gray-300 rounded"></div>
+                )}
 
                 <div className="flex-1">
                   <p className="text-xs font-bold">preview_image.jpg</p>
@@ -360,7 +374,7 @@ const AddProduct = () => {
         </div>
 
         {/* BUTTONS */}
-        <div className="flex justify-end gap-4 mt-10">
+        <div className="flex justify-center items-center gap-6 mt-12">
           <button
             onClick={() => navigate("/admin/products")}
             className="px-6 py-3 border rounded-lg"

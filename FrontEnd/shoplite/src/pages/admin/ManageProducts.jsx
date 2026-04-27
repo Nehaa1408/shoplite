@@ -9,8 +9,9 @@ const ManageProducts = () => {
   useEffect(() => {
     const fetchProducts = async () => {
       try {
-        const res = await adminAxios.get("/api/products");
-        setProducts(res.data);
+        const res = await adminAxios.get("/api/products?page=0&size=100");
+        setProducts(res.data.content);
+
       } catch (err) {
         console.error("Products fetch error:", err);
       }
@@ -182,7 +183,14 @@ const ManageProducts = () => {
                   className="border-t hover:bg-surface-container-low"
                 >
                   <td className="p-4">
-                    <img src={p.imageUrl} className="w-12 h-12 rounded-lg" />
+                    <img
+                      src={
+                        p.imageUrl.startsWith("http")
+                          ? p.imageUrl
+                          : `/products/${p.imageUrl}`
+                      }
+                      className="w-12 h-12 rounded-lg"
+                    />
                   </td>
 
                   <td className="p-4">

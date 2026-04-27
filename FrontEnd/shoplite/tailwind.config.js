@@ -1,85 +1,46 @@
 /** @type {import('tailwindcss').Config} */
-export default {
+module.exports = {
   content: ["./index.html", "./src/**/*.{js,ts,jsx,tsx}"],
   theme: {
     extend: {
       colors: {
-        // Core
-        background: "#f8f9ff",
-        surface: "#f8f9ff",
+        // CORE SYSTEM (clean + premium)
+        background: "#f9f5ff",
+        surface: "#ffffff",
 
-        primary: "#0040e0",
-        secondary: "#5e41d0",
-        tertiary: "#005d73",
+        primary: "#2563eb",        // clean modern blue
+        "primary-soft": "#3b82f6", // lighter blue
 
-        // Containers
-        "primary-container": "#2e5bff",
-        "secondary-container": "#775ceb",
-        "tertiary-container": "#007792",
+        // SURFACE SYSTEM (minimal)
+        "surface-low": "#f2f1ff",
+        "surface-mid": "#e6e4ff",
 
-        // Surface system
-        "surface-container": "#e5eeff",
-        "surface-container-low": "#eff4ff",
-        "surface-container-high": "#dce9ff",
-        "surface-container-highest": "#d3e4fe",
-        "surface-container-lowest": "#ffffff",
+        //  TEXT
+        "text-main": "#2b2a51",
+        "text-muted": "#6b6a85",
 
-        // Text
-        "on-background": "#0b1c30",
-        "on-surface": "#0b1c30",
-        "on-surface-variant": "#434656",
-
-        // States
-        error: "#ba1a1a",
-        "error-container": "#ffdad6",
-
-        // Utility
-        "outline-variant": "#c4c5d9",
-      },
-
-      spacing: {
-        base: "4px",
-        xs: "8px",
-        sm: "12px",
-        md: "16px",
-        lg: "24px",
-        xl: "32px",
-        xxl: "48px",
-        gutter: "24px",
-        "container-max": "1440px",
-      },
-
-      borderRadius: {
-        DEFAULT: "4px",
-        lg: "8px",
-        xl: "12px",
-        xxl: "16px",
-        full: "9999px",
+        //  UTIL
+        border: "#e6e4ff",
       },
 
       fontFamily: {
-        body: ["Inter", "sans-serif"],
+        sans: ["Inter", "sans-serif"],
         heading: ["Manrope", "sans-serif"],
-        metric: ["Manrope", "sans-serif"],
-      },
-
-      fontSize: {
-        h1: ["32px", { lineHeight: "40px", fontWeight: "700" }],
-        h2: ["24px", { lineHeight: "32px", fontWeight: "600" }],
-        h3: ["20px", { lineHeight: "28px", fontWeight: "600" }],
-        body: ["16px", { lineHeight: "24px" }],
-        bodySm: ["14px", { lineHeight: "20px" }],
-        metric: ["36px", { lineHeight: "44px", fontWeight: "800" }],
-        label: ["12px", { lineHeight: "16px", fontWeight: "600" }],
       },
 
       boxShadow: {
-        soft: "0 20px 40px rgba(0,0,0,0.05)",
-        glass: "0 40px 60px -15px rgba(46, 91, 255, 0.04)",
+        soft: "0 4px 20px rgba(43, 42, 81, 0.06)",
+        hover: "0 12px 32px rgba(43, 42, 81, 0.10)",
+
+
+        glow: "0 4px 20px rgba(37, 99, 235, 0.25)",
+        "glow-soft": "0 2px 10px rgba(37, 99, 235, 0.15)",
+        "glow-white": "0 0 20px rgba(255,255,255,0.6)",
       },
 
-      backdropBlur: {
-        xs: "2px",
+      borderRadius: {
+        xl: "12px",
+        "2xl": "16px",
       },
     },
   },

@@ -97,7 +97,7 @@ const OrderConfirmation = () => {
               >
                 <div className="w-24 h-24 rounded-lg overflow-hidden">
                   <img
-                    src={item.image}
+                    src={`/products/${item.imageUrl}`}
                     className="w-full h-full object-cover"
                   />
                 </div>
