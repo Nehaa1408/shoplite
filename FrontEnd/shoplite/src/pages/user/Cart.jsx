@@ -35,7 +35,11 @@ const Cart = () => {
               <div className="w-full md:w-40 h-40 rounded-lg overflow-hidden">
                 <img
 
-                  src={`/products/${item.imageUrl}`}
+                  src={
+                    item.imageUrl?.startsWith("http")
+                      ? item.imageUrl
+                      : `/products/${item.imageUrl}`
+                  }
                   alt={item.productName}
                   className="w-full h-full object-cover"
 

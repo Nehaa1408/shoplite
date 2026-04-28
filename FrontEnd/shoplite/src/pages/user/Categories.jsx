@@ -1,8 +1,29 @@
-import React from "react";
-import { useNavigate } from "react-router-dom";
-
+import { useEffect, useState } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
+import axios from "axios";
 const Categories = () => {
   const navigate = useNavigate();
+  const location = useLocation();
+  const query = new URLSearchParams(location.search);
+  const category = query.get("category");
+  const [products, setProducts] = useState([]);
+
+  useEffect(() => {
+    const fetchProducts = async () => {
+      try {
+        const url = category
+          ? `http://localhost:8080/api/products?category=${category}`
+          : `http://localhost:8080/api/products`;
+
+        const res = await axios.get(url);
+        setProducts(res.data.content);
+      } catch (err) {
+        console.error(err);
+      }
+    };
+
+    fetchProducts();
+  }, [category]);
 
   return (
     <div className="bg-surface min-h-screen text-on-surface">

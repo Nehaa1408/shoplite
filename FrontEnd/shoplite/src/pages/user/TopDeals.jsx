@@ -1,19 +1,64 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
+import { useCart } from "../../context/CartContext";
+import axios from "axios";
 
 const TopDeals = () => {
   const navigate = useNavigate();
+  const { addToCart, cart } = useCart();
+  const [deals, setDeals] = React.useState([]);
+  const [loading, setLoading] = React.useState(true);
+  const [showLoginPopup, setShowLoginPopup] = React.useState(false);
 
+  const handleAddToCart = (item) => {
+    const token = localStorage.getItem("token");
+
+    if (!token) {
+      setShowLoginPopup(true);
+      return;
+    }
+
+    addToCart(item);
+  };
+
+  React.useEffect(() => {
+    const fetchDeals = async () => {
+      try {
+        const res = await axios.get(
+          "http://localhost:8080/api/products?page=0&size=20"
+        );
+
+        const dealNames = [
+          "nomad quartz watch",
+          "aero-max runner",
+          "protab 12.9",
+          "omnipod speaker"
+        ];
+
+        const filtered = res.data.content.filter(p =>
+          dealNames.includes(p.name.toLowerCase().trim())
+        );
+
+        setDeals(filtered);
+      } catch (err) {
+        console.error(err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchDeals();
+  }, []);
   return (
     <div className="bg-[#f9f5ff] min-h-screen">
 
       {/* 🔹 Header */}
       <header className="sticky top-0 z-50 bg-[#f9f5ff]/80 backdrop-blur-md px-6 py-4 flex justify-between items-center shadow">
-        
+
         <div className="flex items-center gap-6">
           <h1
             className="text-2xl font-black text-[#0846ed] cursor-pointer"
-            onClick={() => navigate("/")}
+
           >
             ShopLite
           </h1>
@@ -23,18 +68,37 @@ const TopDeals = () => {
           </span>
         </div>
 
-        {/* 🔹 Home Icon */}
-        <span
-          className="material-symbols-outlined cursor-pointer"
-          onClick={() => navigate("/")}
-        >
-          home
-        </span>
+        <div className="flex items-center gap-4">
+
+          {/*  Home */}
+          <span
+            className="material-symbols-outlined cursor-pointer hover:text-blue-600"
+            onClick={() => navigate("/")}>
+            home
+          </span>
+
+          {/* Cart */}
+          <div
+            className="relative flex items-center justify-center cursor-pointer"
+            onClick={() => navigate("/cart")}
+          >
+            <span className="material-symbols-outlined text-2xl hover:text-blue-600">
+              shopping_cart
+            </span>
+
+            {cart.length > 0 && (
+              <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs w-5 h-5 flex items-center justify-center rounded-full">
+                {cart.length}
+              </span>
+            )}
+          </div>
+
+        </div>
       </header>
 
       {/* 🔹 Hero Section */}
       <section className="px-6 py-12 flex flex-col md:flex-row items-center gap-10 max-w-7xl mx-auto">
-        
+
         <div className="flex-1">
           <span className="text-sm text-blue-600 font-bold">
             ✨ DEAL OF THE WEEK
@@ -73,77 +137,99 @@ const TopDeals = () => {
       {/* 🔹 Deals Grid */}
       <section className="px-6 pb-16 max-w-7xl mx-auto">
 
-        <h2 className="text-2xl font-bold mb-6">
-          Limited Flash Offers
+        <p className="text-center text-sm text-gray-500 mb-2">
+          Curated deals for you
+        </p>
+        <h2 className="text-3xl font-semibold text-center mb-2 tracking-tight text-gray-900">
+          Limited Offers
         </h2>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="w-16 h-[2px] bg-blue-600 mx-auto mb-8 rounded-full"></div>
 
-          {deals.map((item, index) => (
-            <div key={index} className="bg-white p-4 rounded-xl shadow hover:shadow-lg">
+      </section >
+
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        {loading ? (
+          <p>Loading deals...</p>
+        ) : deals.length === 0 ? (
+          <p>No deals found</p>
+        ) : (
+          deals.map((item, index) => (
+            <div key={index} className="bg-white p-4 rounded-xl shadow hover:shadow-lg flex flex-col h-full">
 
               <img
-                src={item.img}
+                src={
+                  item.imageUrl.startsWith("http")
+                    ? item.imageUrl
+                    : `/products/${item.imageUrl}`
+                }
                 alt={item.name}
                 className="w-full h-40 object-cover mb-3"
               />
 
-              <h3 className="font-semibold">{item.name}</h3>
+              <div className="flex-grow">
+                <h3 className="font-semibold">{item.name}</h3>
+                <p className="text-gray-500 text-sm">{item.description}</p>
+              </div>
 
-              <p className="text-gray-500 text-sm">{item.desc}</p>
-
-              <div className="mt-3 flex justify-between items-center">
+              <div className="mt-3 flex items-center justify-between">
                 <div>
                   <p className="line-through text-gray-400 text-sm">
-                    ${item.oldPrice}
+                    ${Math.round(item.price * 1.3)}
                   </p>
                   <p className="font-bold text-lg">
                     ${item.price}
                   </p>
                 </div>
 
-                <button className="bg-gray-200 p-2 rounded">
+                <button
+                  onClick={() => handleAddToCart(item)}
+                  className="bg-blue-600 text-white px-3 py-2 rounded-lg hover:bg-blue-700 transition"
+                >
                   🛒
                 </button>
               </div>
-            </div>
-          ))}
 
+            </div>
+          ))
+        )}
+
+      </div>
+      {showLoginPopup && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm">
+          <div className="bg-white rounded-2xl p-8 w-[90%] max-w-md shadow-2xl text-center animate-fadeIn">
+
+            <div className="text-5xl mb-4">🔒</div>
+
+            <h2 className="text-2xl font-bold mb-2">
+              Login Required
+            </h2>
+
+            <p className="text-gray-600 mb-6">
+              You need to login before adding items to your cart.
+            </p>
+
+            <div className="flex gap-4 justify-center">
+              <button
+                onClick={() => navigate("/login")}
+                className="px-6 py-3 bg-blue-600 text-white rounded-xl font-semibold hover:scale-105 transition"
+              >
+                Login Now
+              </button>
+
+              <button
+                onClick={() => setShowLoginPopup(false)}
+                className="px-6 py-3 border rounded-xl font-semibold hover:bg-gray-100 transition"
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
         </div>
-      </section>
-    </div>
+      )}
+    </div >
   );
 };
 
 export default TopDeals;
 
-const deals = [
-  {
-    name: "Nomad Quartz Watch",
-    desc: "Surgical steel with sapphire crystal.",
-    price: 159,
-    oldPrice: 240,
-    img: "https://lh3.googleusercontent.com/aida-public/AB6AXuCyBwB_IR_PeaWfG52to4-Pv61cKrCvle6F4aGlQY9SZZnniSowNY_9MgDGysTytLwUI-A-nkXy4roK0AqCXin9fxTFmxcd3IZZSphMEGYJE4wCValiXQcHyu5idFRDTrVfH4LAWGhTJvoHtoly1CZAM3Mna2FrqkS5MgexHB9nZ_maxRL9u-_AnmuA-Tn6vDNPQg8De1bsjQQNQpOiVIffhSzkM-cCH3j01v1rzXxkMauMy3tdrdwYqNSu-FuwIHJZTZbJaSP9V14"
-  },
-  {
-    name: "Aero-Max Runner",
-    desc: "Breathable sneakers with air cushioning.",
-    price: 99,
-    oldPrice: 180,
-    img: "https://lh3.googleusercontent.com/aida-public/AB6AXuBDqXrnlQkONvl6mOB5ajWWrOAoTiNdTWy-Kge45G6DsVMVrL1pZAAV2pBg6EI-7M5bRnlxG7YolPxYeK6vYzEvrLCKSBlpMf6DFfb7xpXSnGiKQVTzB4Uif5Hzzjo9NJ10vmEJIAMmGLDaYUGQ15TCauEGf-UdJtZs4gATgkoSklAp_iGEDUtVTqm4QEPZ_tizwXh0Sj0bT0CI-w98kmIhNE7JxjkC9CteFreZkVZZxqKpxFL0lJnUVBREFr2S3diSC66IOY02e6g"
-  },
-  {
-    name: "ProTab 12.9",
-    desc: "Advanced tablet for professionals.",
-    price: 899,
-    oldPrice: 1099,
-    img: "https://lh3.googleusercontent.com/aida-public/AB6AXuD4rY6ycFfNSPIH-gG7LbwfAaCO4WMz1nK5r9IvNUm-tmOAgTNgQ0qHfBr53RA7PsLw3LrLYFFsEXhG3V6wzt7MK_vGki3ZhYNfTdmOF60HceyRU3nGpDUOayjQYrHVy4BXIPs4De64nBJq1WzzI2DBn-3Nuj90o0XRAaL04vmm_5k2Y1nuWxRHSNy4Bt0peLkU01ovV7VE88IEZME5oSzOCOcZZr0u_ewCQJ8HLonGtFTQYeLc97Zt_CfImBvNV21G0Ip9uicY5A4"
-  },
-  {
-    name: "OmniPod Speaker",
-    desc: "360° immersive sound system.",
-    price: 129,
-    oldPrice: 199,
-    img: "https://lh3.googleusercontent.com/aida-public/AB6AXuBVAK-A9dnuVAByNc5Li203LAB773BvI5SUawKErgV_-UWxvOGDeNGl6tV9FyKhDQAhl-ZsAEz5t3ikcMz-hkwEfU8PNpo1-h3DbaASw9eJBHew34X5GVG-3gpHGYj2QT9xelnP6temAh8a9zX0LYB5qiQAjN7q_8V00qtfX-6EeqwIZlz6Sdo0QGQssd2XuKI2oXsOP1FySzEfbAXShgcJAR-HXlMxLSxrh1SZN-R2-zsAt5SpGQ1xtrtBF1uQXBpG-V0kvdNRSDY"
-  }
-];

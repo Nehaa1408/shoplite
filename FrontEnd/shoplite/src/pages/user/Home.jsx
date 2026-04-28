@@ -1,19 +1,8 @@
 import React from "react";
 import { useCart } from "../../context/CartContext";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import {
-  MdHome,
-  MdCategory,
-  MdLocalOffer,
-  MdStars,
-  MdReceipt,
-  MdConfirmationNumber,
-  MdSearch,
-  MdShoppingCart,
-  MdAccountCircle,
-  MdChevronLeft,
-  MdChevronRight,
-  MdAddShoppingCart
+  MdHome, MdCategory, MdLocalOffer, MdStars, MdReceipt, MdConfirmationNumber, MdSearch, MdShoppingCart, MdAccountCircle, MdChevronLeft, MdChevronRight, MdAddShoppingCart
 } from "react-icons/md";
 import axios from "axios";
 const Home = () => {
@@ -23,6 +12,17 @@ const Home = () => {
   const { addToCart, cart } = useCart();
   const [searchTerm, setSearchTerm] = React.useState("");
   const [currentPage, setCurrentPage] = React.useState(1);
+  const location = useLocation();
+  const query = new URLSearchParams(location.search);
+  const category = query.get("category");
+  const [categories, setCategories] = React.useState([]);
+  const categoryIcons = {
+    electronics: <MdCategory size={18} />,
+    fashion: <MdStars size={18} />,
+    footwear: <MdLocalOffer size={18} />,
+    home: <MdHome size={18} />,
+    accessories: <MdShoppingCart size={18} />
+  };
 
   const handleProfileClick = () => {
     const token = localStorage.getItem("token");
@@ -36,9 +36,11 @@ const Home = () => {
   React.useEffect(() => {
     const fetchProducts = async () => {
       try {
-        const res = await axios.get(
-          `http://localhost:8080/api/products?page=${currentPage - 1}&size=6`
-        );
+        const url = category
+          ? `http://localhost:8080/api/products?category=${category}&page=${currentPage - 1}&size=4`
+          : `http://localhost:8080/api/products?page=${currentPage - 1}&size=4`;
+
+        const res = await axios.get(url);
         setProducts(res.data.content);
         setTotalPages(res.data.totalPages);
       } catch (err) {
@@ -49,8 +51,24 @@ const Home = () => {
     };
 
     fetchProducts();
-  }, [currentPage]);
+  }, [currentPage, category]);
 
+  React.useEffect(() => {
+    setCurrentPage(1);
+  }, [category]);
+
+  React.useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const res = await axios.get("http://localhost:8080/categories");
+        setCategories(res.data);
+      } catch (err) {
+        console.error(err);
+      }
+    };
+
+    fetchCategories();
+  }, []);
 
   const productsPerPage = 6;
 
@@ -79,6 +97,20 @@ const Home = () => {
 
   const [totalPages, setTotalPages] = React.useState(1);
   const [showLoginPopup, setShowLoginPopup] = React.useState(false);
+
+  const handleAddToCart = (e, product) => {
+    e.stopPropagation();
+
+    const token = localStorage.getItem("token");
+
+    if (!token) {
+      setShowLoginPopup(true);
+      return;
+    }
+
+    addToCart(product);
+  };
+
   return (
     <div className="relative min-h-screen overflow-hidden bg-[#eef2ff] text-on-background flex flex-col">
       <div className="absolute inset-0 -z-10">
@@ -95,246 +127,306 @@ const Home = () => {
       <div className="relative z-10 flex flex-col min-h-screen">
 
         {/* Navbar */}
-        <nav className="fixed top-0 w-full z-50 h-16 bg-[#f9f5ff]/70 backdrop-blur-md flex justify-between items-center px-6 md:px-12 max-w-[1920px] mx-auto border-b border-[#e6e4ff]">
-          <div className="text-xl md:text-2xl font-black tracking-tight text-[#0846ed] font-['Manrope']">
-            ShopLite
-          </div>
 
-          <div className="hidden md:flex flex-1 max-w-xl mx-8 relative">
-            <input
-              value={searchTerm}
-              onChange={(e) => {
-                setSearchTerm(e.target.value);
-                setCurrentPage(1);
-              }}
-              className="w-full bg-white/70 backdrop-blur-md rounded-md px-10 py-2 text-sm border border-[#e6e4ff] focus:ring-2 focus:ring-primary/30 focus:outline-none transition-all"
-              placeholder="Search products..."
-            />
-            <MdSearch size={18} className="absolute left-3 top-1/2 -translate-y-1/2" />
-          </div>
+        <nav className="fixed top-0 left-0 w-full z-50 backdrop-blur-xl bg-white/70 border-b border-white/40">
+          <div className="max-w-[1400px] mx-auto px-6 md:px-12 h-20 flex items-center justify-between">
 
-          <div className="flex items-center gap-4">
-            <button
-              aria-label="Open cart"
-              onClick={() => navigate("/cart")}
-              className="p-2 rounded-lg text-[#2b2a51] hover:bg-white/60 transition-all duration-200 relative"
+            {/* LEFT — LOGO */}
+            <div
+              onClick={() => navigate("/")}
+              className="text-2xl font-black tracking-tight text-indigo-600 cursor-pointer"
             >
-              <MdShoppingCart size={22} />
+              ShopLite
+            </div>
 
-              {cart.length > 0 && (
-                <span className="absolute -top-1 -right-1 bg-primary text-white text-[10px] px-1.5 py-0.5 rounded-full">
-                  {cart.length}
-                </span>
-              )}
-            </button>
-            <button aria-label="Open profile" onClick={handleProfileClick}>
-              <MdAccountCircle size={22} />
-            </button>
+            {/* CENTER — NAV ITEMS */}
+            <div className="hidden lg:flex items-center gap-8 text-sm font-medium text-gray-600">
+
+              {[
+                { name: "Home", path: "/" },
+                { name: "Categories", path: "/categories" },
+                { name: "Brands", path: "/brands" },
+                { name: "Deals", path: "/top-deals" },
+                { name: "Orders", path: "/orders" },
+                { name: "Tickets", path: "/tickets", secondary: true }
+              ].map((item, i) => {
+                const isActive = location.pathname === item.path;
+
+                return (
+                  <button
+                    key={i}
+                    onClick={() => navigate(item.path)}
+                    className={`relative transition ${isActive
+                      ? "text-indigo-600"
+                      : item.secondary
+                        ? "text-gray-400 hover:text-indigo-500"
+                        : "text-gray-600 hover:text-indigo-600"
+                      }`}
+                  >
+                    {item.name}
+
+                    {/* underline animation */}
+                    <span
+                      className={`absolute left-0 -bottom-1 h-[2px] bg-indigo-500 transition-all duration-300 ${isActive ? "w-full" : "w-0 group-hover:w-full"
+                        }`}
+                    />
+                  </button>
+                );
+              })}
+            </div>
+
+            {/* RIGHT SIDE */}
+            <div className="flex items-center gap-4">
+
+              {/* SEARCH (COMPACT) */}
+              <div className="hidden md:flex items-center bg-white/80 backdrop-blur-md border border-gray-200 rounded-full px-4 py-2 w-56">
+                <MdSearch className="text-gray-500 mr-2" size={18} />
+                <input
+                  value={searchTerm}
+                  onChange={(e) => {
+                    setSearchTerm(e.target.value);
+                    setCurrentPage(1);
+                  }}
+                  placeholder="Search..."
+                  className="bg-transparent outline-none text-sm w-full"
+                />
+              </div>
+
+              {/* CART */}
+              <button
+                onClick={() => navigate("/cart")}
+                className="relative p-2 rounded-full hover:bg-gray-100 transition"
+              >
+                <MdShoppingCart size={22} />
+
+                {cart.length > 0 && (
+                  <span className="absolute -top-1 -right-1 bg-indigo-600 text-white text-[10px] px-1.5 py-0.5 rounded-full">
+                    {cart.length}
+                  </span>
+                )}
+              </button>
+
+              {/* PROFILE */}
+              <button onClick={handleProfileClick}>
+                <div className="h-10 w-10 rounded-full overflow-hidden bg-gradient-to-br from-indigo-200 to-purple-200 shadow-md">
+                  <img
+                    src="https://lh3.googleusercontent.com/aida-public/AB6AXuBgcj9i-xOULjXbKX_gAzqP3OP_0GxiEBwAFPjURfiNHeiove_rW5LSqbTrLaXOika9GUOCug1BZDM4pjJcvgJpgo8VE0bUDHJ9Dt_Y4R3S1TSi0TYN7TlG1NcXEuq9uf3Tl5IBPZgZqD5ggbaqv6PNT9ZYyVBk4TdE4BnjEu7WExWjF3uUBPvu2Iux7I2JMHX1JdziVvAtvFh4QYmhYEdxx1Vw7E1AK6f5T5ielO_yR6BfQN0ZMpAV14dYZGKBl_iDL-juLNgde-c"
+                    alt="Profile"
+                    className="w-full h-full object-cover"
+                  />
+                </div>
+              </button>
+
+            </div>
           </div>
         </nav>
 
         {/* Main */}
-        <main className="flex-grow pt-16 flex  w-full">
-          {/* Sidebar */}
-          <div className="lg:w-64 hidden lg:block">
-            <aside className="hidden lg:flex flex-col gap-y-2 p-6 h-screen w-64 fixed left-0 border-r border-white/30 bg-gradient-to-b from-white/80 to-white/40 backdrop-blur-xl pt-20">
-              {/* Title */}
-              <div className="mb-6">
-                <h2 className="text-[#0846ed] text-lg font-bold font-['Manrope']">
-                  Explore
-                </h2>
-                <p className="text-sm text-[#6b6a85]">
-                  Navigate through ShopLite
+        <main className="flex-grow pt-32 md:pt-36 w-full">
+
+          {/* RIGHT SIDE CONTENT */}
+          <div className="flex-1 ">
+
+            {/* HERO SECTION */}
+            <section className="pt-10 md:pt-14 pb-6 md:pb-10 pl-8 md:pl-16 pr-4 md:pr-8 max-w-[1400px] mx-auto">
+              <div className="grid lg:grid-cols-2 gap-12 items-center">
+
+                {/* LEFT CONTENT */}
+                <div className="space-y-6">
+
+                  {/* BADGE */}
+                  <div className="inline-block px-4 py-1 rounded-full bg-primary/10 text-primary text-xs font-semibold tracking-wide">
+                    NEW COLLECTIONS
+                  </div>
+
+                  {/* HEADING */}
+                  <h1 className="text-4xl md:text-5xl lg:text-6xl font-black leading-tight">
+                    Elevate Your <br />
+                    <span className="bg-gradient-to-r from-indigo-500 to-purple-500 bg-clip-text text-transparent">
+                      Shopping Experience
+                    </span>
+                  </h1>
+
+                  {/* DESCRIPTION */}
+                  <p className="text-gray-600 text-lg max-w-lg">
+                    Discover a curated sanctuary of minimalist design and high-end technical refinement. Experience luxury redefined through ethereal aesthetics.
+                  </p>
+
+                  {/* BUTTONS */}
+                  <div className="flex gap-4 pt-4">
+                    <button className="px-6 py-3 rounded-full bg-gradient-to-r from-indigo-500 to-purple-500 text-white font-semibold shadow-lg hover:scale-105 transition">
+                      Shop Collection →
+                    </button>
+
+                    <button className="px-6 py-3 rounded-full bg-gray-100 text-gray-700 font-semibold hover:bg-gray-200 transition">
+                      View Lookbook
+                    </button>
+                  </div>
+                </div>
+
+                {/* RIGHT SIDE */}
+                <div className="relative flex justify-center">
+
+                  {/* GLOW BACKGROUND */}
+                  <div className="absolute w-[380px] h-[380px] bg-purple-400/40 blur-[120px] rounded-full"></div>
+
+                  {/* PRODUCT CARD */}
+                  <div className="relative bg-black rounded-[32px] p-6 shadow-[0_60px_140px_rgba(0,0,0,0.45)] animate-[floatY_4s_ease-in-out_infinite]">
+
+                    <img
+                      src={`${import.meta.env.BASE_URL}products/p1.webp`}
+                      alt="Product"
+                      className="w-[320px] md:w-[380px] object-contain drop-shadow-2xl"
+                    />
+
+                    {/* FLOATING PRICE CARD */}
+                    <div className="absolute -bottom-6 -right-6 bg-white/80 backdrop-blur-xl px-4 py-3 rounded-xl shadow-xl animate-[floatY_5s_ease-in-out_infinite]">
+                      <p className="text-xs text-purple-500 font-semibold">
+                        BEST SELLER
+                      </p>
+                      <p className="text-sm font-medium text-gray-700">
+                        Ethereal Series 01
+                      </p>
+                      <p className="text-lg font-bold text-purple-600">
+                        $400.00
+                      </p>
+                    </div>
+
+                  </div>
+                </div>
+
+              </div>
+            </section>
+            <div className="max-w-[1400px] mx-auto mt-10">
+
+              <div className="flex items-center justify-between w-full px-6 md:px-12 py-6">
+
+                {categories.map((cat) => {
+                  const isActive = category === cat.name;
+
+                  return (
+                    <button
+                      key={cat.id}
+                      onClick={() => {
+                        navigate(`/?category=${cat.name}`);
+                        document.getElementById("products")?.scrollIntoView({
+                          behavior: "smooth"
+                        });
+                      }}
+                      className={`flex items-center gap-2 px-5 py-2.5 rounded-full whitespace-nowrap transition-all duration-300 ${isActive
+                        ? "bg-white shadow-md border border-indigo-200 text-indigo-600"
+                        : "bg-gray-100 text-gray-600 hover:bg-white hover:shadow-sm"
+                        }`}
+                    >
+
+                      {/* ICON */}
+                      <span className={`${isActive ? "text-indigo-600" : "text-gray-500"}`}>
+                        {categoryIcons[cat.name]}
+                      </span>
+
+                      {/* TEXT */}
+                      <span className="text-sm font-medium capitalize">
+                        {cat.name}
+                      </span>
+
+                    </button>
+                  );
+                })}
+
+              </div>
+            </div>
+
+            {/* Product Section */}
+            <section id="products" className="px-6 md:px-12 py-12 max-w-[1400px] mx-auto">
+
+              {/* HEADER */}
+              <div className="mb-10">
+                <h1 className="text-3xl md:text-4xl font-black mb-2">
+                  Featured Collection
+                </h1>
+                <p className="text-gray-500">
+                  Curated products for your modern lifestyle.
                 </p>
               </div>
 
-              {/* Navigation */}
-              <nav className="space-y-2">
-                {[
-                  { name: "Home", icon: <MdHome size={20} />, path: "/" },
-                  { name: "Categories", icon: <MdCategory size={20} />, path: "/categories" },
-                  { name: "Brands", icon: <MdLocalOffer size={20} />, path: "/brands" },
-                  { name: "Top Deals", icon: <MdStars size={20} />, path: "/top-deals" },
-                  { name: "Order History", icon: <MdReceipt size={20} />, path: "/orders" },
-                  { name: "Ticket Management", icon: <MdConfirmationNumber size={20} />, path: "/tickets" }
-                ].map((item, index) => {
-                  const isActive = window.location.pathname === item.path;
+              {/* GRID */}
+              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-6">
 
-                  return (
-                    <div
-                      key={index}
-                      onClick={() => navigate(item.path)}
-                      className={`group flex items-center gap-3 p-3 rounded-xl cursor-pointer transition-all duration-300 relative overflow-hidden hover:translate-x-1 ${isActive ? "bg-primary/10" : ""
-                        }`}
-                    >
-                      {/* Glow */}
-                      <span className={`absolute inset-0 bg-gradient-to-r from-primary/10 to-transparent transition-all duration-300 ${isActive ? "opacity-100" : "opacity-0 group-hover:opacity-100"
-                        }`}></span>
-
-                      {/* Icon */}
-                      <span className={`relative z-10 transition ${isActive ? "text-blue-600" : "text-[#6b6a85] group-hover:text-blue-600"
-                        }`}>
-                        {!loading && item.icon}
-                      </span>
-
-                      {/* Text */}
-                      <span className={`relative z-10 font-medium transition ${isActive ? "text-blue-600" : "text-[#6b6a85] group-hover:text-blue-600"
-                        }`}>
-                        {item.name}
-                      </span>
-                    </div>
-                  );
-                })}
-              </nav>
-            </aside>
-          </div>
-          {/* RIGHT SIDE CONTENT */}
-          <div className="flex-1 ">
-            {/* HERO SECTION */}
-            <section className="px-8 md:px-12 py-16">
-              <div className="flex flex-col lg:flex-row items-center justify-between gap-16 bg-white/70 backdrop-blur-xl p-10 md:p-14 rounded-3xl shadow-[0_25px_80px_rgba(0,0,0,0.12)] border border-white/40 relative overflow-hidden transition-all duration-500 hover:shadow-[0_30px_100px_rgba(0,0,0,0.15)]">
-                <div className="absolute inset-0 bg-gradient-to-br from-blue-100/40 via-transparent to-blue-200/30 pointer-events-none "></div>
-                {/* LEFT TEXT */}
-                <div className="max-w-xl space-y-6">
-                  <h1 className="text-4xl md:text-5xl font-black font-['Manrope'] leading-tight tracking-tight">
-                    Elevate Your <br />
-                    <span className="bg-gradient-to-r from-blue-600 to-blue-400 bg-clip-text text-transparent">Shopping Experience</span>
-                  </h1>
-
-                  <p className="text-on-surface-variant text-lg">
-                    Discover premium products curated for modern lifestyles.
-                    Minimal. Elegant. Powerful.
-                  </p>
-
-                  <div className="flex gap-4 pt-2">
-                    <button className="relative px-6 py-3 rounded-xl bg-gradient-to-br from-primary to-primary-soft text-white font-semibold shadow-glow hover:shadow-glow-soft transition-all duration-300">
-                      <span className="absolute inset-0 rounded-xl bg-white/10 opacity-0 hover:opacity-100 transition"></span>
-                      Shop Now
-                    </button>
-
-                    <button className="px-6 py-3 rounded-xl border border-outline-variant text-on-background font-semibold hover:bg-surface-container-low transition">
-                      Explore
-                    </button>
-                  </div>
-                </div>
-
-                {/* RIGHT IMAGE */}
-                {/* HERO SECTION */}
-                <div className="relative">
-                  <div style={{ width: "400px", height: "500px" }}>
-                    <img
-                      src={`${import.meta.env.BASE_URL}products/p1.webp`}
-                      loading="eager"
-                      fetchPriority="high"
-                      width="400"
-                      height="500"
-                      className="w-full max-w-md rounded-3xl shadow-[0_30px_80px_rgba(0,0,0,0.25)]"
-                      alt="Premium shopping experience"
-                    />
-                  </div>
-
-                  <div className="absolute -top-16 -left-16 w-60 h-60 bg-primary/20 blur-[100px] rounded-full"></div>
-                </div>
-              </div>
-            </section>
-
-            {/* Product Section */}
-            <section className="p-8 md:p-12">
-              <div className="mb-10 flex justify-between items-end">
-                <div>
-                  <h1 className="text-4xl font-black mb-2">
-                    Featured Collection
-                  </h1>
-                  <p className="text-[#6b6a85]">
-                    Curated products for your modern lifestyle.
-                  </p>
-                </div>
-
-
-              </div>
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-8">
                 {loading ? (
-                  [...Array(6)].map((_, i) => (
+                  [...Array(8)].map((_, i) => (
                     <div
                       key={i}
-                      className="h-[350px] bg-gray-200 animate-pulse rounded-xl"
-                    ></div>
+                      className="h-[220px] bg-gray-200 animate-pulse rounded-2xl"
+                    />
                   ))
                 ) : (
                   currentProducts.map((product) => (
+
                     <div
                       key={product.id}
-                      onClick={() => navigate(`/product/${product.id}`)}
-                      className="group relative flex flex-col bg-white shadow-md rounded-xl overflow-hidden transition-all duration-300 hover:-translate-y-[6px] hover:scale-[1.02] hover:shadow-[0_20px_50px_rgba(0,0,0,0.12)] cursor-pointer"
+                      onClick={(e) => {
+                        if (e.target.closest("button")) return;
+                        navigate(`/product/${product.id}`);
+                      }}
+                      className="group cursor-pointer"
                     >
-                      <div className="overflow-hidden bg-white/50 relative group">
-                        <img
 
-                          src={product.image}
-                          loading="lazy"
-                          decoding="async"
-                          width="300"
-                          height="375"
-                          alt={product.name}
+                      <div className="bg-white rounded-2xl p-4 shadow-sm hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
 
-                          onError={(e) => {
-                            e.target.src = "/products/p1.webp";
-                          }}
-                          className="w-full object-cover transition-transform duration-700 ease-out group-hover:scale-110"
-                        />
-                        <div className="absolute inset-0 bg-blue-500/0 group-hover:bg-blue-500/5 transition duration-300"></div>
-                        {product.tag && (
-                          <div
-                            className={`absolute top-4 right-4 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider ${product.tag === "Sale"
-                              ? "bg-primary text-on-primary"
-                              : "bg-white/90 backdrop-blur-md text-blue-600"
-                              }`}
-                          >
-                            {product.tag}
-                          </div>
-                        )}
-                      </div>
+                        {/* IMAGE BOX */}
+                        <div className="relative bg-gray-100 rounded-xl flex items-center justify-center h-[180px] overflow-hidden">
 
-                      <div className="p-6 flex flex-col flex-grow">
-                        <h2 className="text-lg font-bold text-on-surface mb-1 group-hover:text-blue-600 transition-colors">
-                          {product.name}
-                        </h2>
-
-                        <p className="text-on-surface-variant text-sm mb-4">
-                          {product.desc}
-                        </p>
-
-                        <div className="mt-auto flex items-center justify-between">
-                          <span className="text-xl font-black text-on-surface">
-                            {product.price}
-                          </span>
+                          <img
+                            src={product.image}
+                            alt={product.name}
+                            onError={(e) => {
+                              e.target.src = "/products/p1.webp";
+                            }}
+                            className="max-h-[140px] object-contain transition-transform duration-500 group-hover:scale-110"
+                          />
 
                           <button
-                            aria-label={`Add ${product.name} to cart`}
-                            onClick={(e) => {
-                              e.stopPropagation();
-
-                              const token = localStorage.getItem("token");
-
-                              if (!token) {
-                                setShowLoginPopup(true);
-                                return;
-                              }
-
-                              addToCart(product);
-                            }}
-                            className="relative bg-gradient-to-br from-primary to-primary-soft text-white p-3 rounded-xl shadow-glow hover:shadow-glow-soft  transition-all duration-300 ease-out hover:scale-[1.08] active:scale-[0.92] "
+                            onClick={(e) => handleAddToCart(e, product)}
+                            className="absolute bottom-3 right-3 
+  opacity-0 translate-y-3 scale-90 
+  group-hover:opacity-100 group-hover:translate-y-0 group-hover:scale-100
+  transition-all duration-300 ease-out
+  bg-indigo-600 text-white p-2 rounded-full shadow-lg 
+  hover:scale-110 hover:bg-indigo-700 active:scale-95"
                           >
-                            <MdAddShoppingCart size={20} />
+                            <MdAddShoppingCart size={16} />
                           </button>
+
                         </div>
+
+                        {/* TEXT */}
+                        <div className="mt-4 space-y-1">
+
+                          <p className="text-xs text-gray-400 uppercase tracking-wide">
+                            {product.category || "Category"}
+                          </p>
+
+                          <h3 className="text-sm font-semibold text-gray-800 line-clamp-1">
+                            {product.name}
+                          </h3>
+
+                          <p className="text-indigo-600 font-bold text-sm">
+                            {product.price}
+                          </p>
+
+                        </div>
+
                       </div>
+
                     </div>
+
                   ))
                 )}
+
               </div>
+
             </section>
+
             {/* Pagination */}
             <section>
               <div className="mt-20 flex justify-center items-center gap-4">
@@ -372,65 +464,162 @@ const Home = () => {
               </div>
             </section>
           </div>
+          {/* PREMIUM BANNER */}
+          <section className="px-6 md:px-12 py-20">
+            <div className="max-w-[1200px] mx-auto">
 
+              <div className="relative overflow-hidden rounded-[40px] p-12 md:p-16 bg-gradient-to-br from-[#0f172a] via-[#1e1b4b] to-[#312e81] text-white shadow-[0_40px_120px_rgba(0,0,0,0.4)]">
+
+                {/* GLOW BACKGROUND */}
+                <div className="absolute -top-20 -left-20 w-[300px] h-[300px] bg-purple-500/30 blur-[120px] rounded-full"></div>
+                <div className="absolute -bottom-20 -right-20 w-[300px] h-[300px] bg-indigo-500/30 blur-[120px] rounded-full"></div>
+
+                {/* CONTENT */}
+                <div className="relative z-10 flex flex-col md:flex-row items-center justify-between gap-10">
+
+                  {/* TEXT */}
+                  <div className="max-w-xl space-y-4">
+                    <h2 className="text-3xl md:text-4xl font-black leading-tight">
+                      Join the Future of Shopping
+                    </h2>
+
+                    <p className="text-gray-300">
+                      Unlock exclusive deals, early product access, and a seamless premium experience tailored just for you.
+                    </p>
+                  </div>
+
+                  {/* BUTTON */}
+                  <button className="px-8 py-4 rounded-full bg-white text-indigo-700 font-semibold shadow-lg hover:scale-105 transition">
+                    Get Started →
+                  </button>
+
+                </div>
+
+              </div>
+            </div>
+          </section>
         </main >
 
         {/* Footer */}
-        < footer className="w-full py-12 border-t border-[#aba9d7]/15 bg-gradient-to-b from-white/90 to-white/60 backdrop-blur-xl" >
-          <div className="lg:ml-64 px-6 flex flex-col md:flex-row justify-between items-center gap-3">
-            <div className="font-['Manrope'] font-bold text-[#0846ed] text-lg">
-              ShopLite
+
+        <footer className="w-full mt-16 border-t border-gray-200 bg-[#f8f9ff]">
+          <div className="max-w-[1400px] mx-auto px-6 md:px-12 py-16">
+
+            {/* TOP GRID */}
+            <div className="grid md:grid-cols-4 gap-10">
+
+              {/* BRAND */}
+              <div className="space-y-4">
+                <h2 className="text-xl font-bold text-gray-800">ShopLite</h2>
+                <p className="text-sm text-gray-500 leading-relaxed">
+                  Ethereal commerce for the modern minimalist. High-end products designed for lifetime value.
+                </p>
+
+                {/* SOCIAL */}
+                <div className="flex gap-3 pt-2">
+                  <div className="w-9 h-9 flex items-center justify-center rounded-full bg-white shadow hover:scale-105 transition cursor-pointer">🌐</div>
+                  <div className="w-9 h-9 flex items-center justify-center rounded-full bg-white shadow hover:scale-105 transition cursor-pointer">💬</div>
+                  <div className="w-9 h-9 flex items-center justify-center rounded-full bg-white shadow hover:scale-105 transition cursor-pointer">@</div>
+                </div>
+              </div>
+
+              {/* SHOP */}
+              <div className="space-y-3">
+                <h3 className="text-sm font-semibold text-gray-700 tracking-wide">SHOP</h3>
+                <ul className="space-y-2 text-sm text-gray-500">
+                  <li className="hover:text-indigo-600 cursor-pointer">Collection</li>
+                  <li className="hover:text-indigo-600 cursor-pointer">New Arrivals</li>
+                  <li className="hover:text-indigo-600 cursor-pointer">Best Sellers</li>
+                </ul>
+              </div>
+
+              {/* COMPANY */}
+              <div className="space-y-3">
+                <h3 className="text-sm font-semibold text-gray-700 tracking-wide">COMPANY</h3>
+                <ul className="space-y-2 text-sm text-gray-500">
+                  <li className="hover:text-indigo-600 cursor-pointer">Sustainability</li>
+                  <li className="hover:text-indigo-600 cursor-pointer">Care</li>
+                  <li className="hover:text-indigo-600 cursor-pointer">Privacy</li>
+                </ul>
+              </div>
+
+              {/* NEWSLETTER */}
+              <div className="space-y-4">
+                <h3 className="text-sm font-semibold text-gray-700 tracking-wide">NEWSLETTER</h3>
+
+                <div className="flex items-center bg-white rounded-full px-4 py-2 shadow-sm border">
+                  <input
+                    type="email"
+                    placeholder="Email Address"
+                    className="flex-1 text-sm outline-none bg-transparent"
+                  />
+                  <button className="ml-2 w-8 h-8 rounded-full bg-indigo-600 text-white flex items-center justify-center hover:scale-105 transition">
+                    →
+                  </button>
+                </div>
+              </div>
+
             </div>
 
-            <div className="flex flex-wrap justify-center gap-4">
-              <a className="text-xs uppercase tracking-wide text-[#6b6a85] hover:text-[#0846ed] underline underline-offset-4 transition">
-                Privacy Policy
-              </a>
-              <a className="text-xs uppercase tracking-wide text-[#6b6a85]hover:text-[#0846ed] underline underline-offset-4 transition">
-                Terms of Service
-              </a>
-              <a className="text-xs uppercase tracking-wide text-[#6b6a85]hover:text-[#0846ed] underline underline-offset-4 transition">
-                Support
-              </a>
+            {/* BOTTOM BAR */}
+            <div className="mt-12 pt-6 border-t border-gray-200 flex flex-col md:flex-row justify-between items-center gap-4 text-xs text-gray-400">
+              <p>© 2024 ShopLite. Ethereal Commerce.</p>
+
+              <div className="flex gap-6">
+                <span className="hover:text-indigo-600 cursor-pointer">Instagram</span>
+                <span className="hover:text-indigo-600 cursor-pointer">Pinterest</span>
+                <span className="hover:text-indigo-600 cursor-pointer">Twitter</span>
+              </div>
             </div>
 
-            <div className="text-xs uppercase tracking-wide text-[#6b6a85] text-center md:text-right">
-              © 2024 ShopLite Luminous Editorial. All rights reserved.
-            </div>
           </div>
-        </footer >
+        </footer>
+
         {showLoginPopup && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm">
-            <div className="bg-white rounded-2xl p-8 w-[90%] max-w-md shadow-2xl text-center animate-fadeIn">
+          <div className="fixed inset-0 z-[999] flex items-center justify-center bg-black/40 backdrop-blur-sm">
 
-              <div className="text-5xl mb-4">🔒</div>
+            {/* CARD */}
+            <div className="bg-white rounded-2xl p-8 w-[90%] max-w-sm shadow-[0_20px_60px_rgba(0,0,0,0.2)] text-center animate-[fadeIn_0.3s_ease]">
 
-              <h2 className="text-2xl font-bold mb-2">
+              {/* ICON */}
+              <div className="text-4xl mb-4">🔒</div>
+
+              {/* TITLE */}
+              <h2 className="text-xl font-bold mb-2">
                 Login Required
               </h2>
 
-              <p className="text-gray-600 mb-6">
-                You need to login before adding items to your cart.
+              {/* TEXT */}
+              <p className="text-gray-500 mb-6 text-sm">
+                Please login to continue adding items to your cart.
               </p>
 
-              <div className="flex gap-4 justify-center">
+              {/* BUTTONS */}
+              <div className="flex gap-3 justify-center">
+
                 <button
-                  onClick={() => navigate("/login")}
-                  className="px-6 py-3 bg-primary text-white rounded-xl font-semibold hover:scale-105 transition"
+                  onClick={() => {
+                    setShowLoginPopup(false);
+                    navigate("/login");
+                  }}
+                  className="px-5 py-2.5 bg-indigo-600 text-white rounded-lg font-medium hover:scale-105 transition"
                 >
-                  Login Now
+                  Login
                 </button>
 
                 <button
                   onClick={() => setShowLoginPopup(false)}
-                  className="px-6 py-3 border rounded-xl font-semibold hover:bg-gray-100 transition"
+                  className="px-5 py-2.5 border rounded-lg font-medium hover:bg-gray-100 transition"
                 >
                   Cancel
                 </button>
+
               </div>
+
             </div>
           </div>
         )}
+
       </div >
     </div>
   );
