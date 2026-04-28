@@ -30,6 +30,7 @@ import AdminLogin from "./pages/admin/AdminLogin";
 import AdminTickets from "./pages/admin/AdminTickets";
 import AdminTicketDetails from "./pages/admin/AdminTicketDetails";
 import AdminProfile from "./pages/admin/AdminProfile";
+import BrandDetails from "./pages/user/BrandDetails";
 
 function App() {
   return (
@@ -52,12 +53,14 @@ function App() {
           <Route path="/cart" element={<Cart />} />
           <Route path="/categories" element={<Categories />} />
           <Route path="/brands" element={<Brands />} />
+          <Route path="/brand/:brandName" element={<BrandDetails />} />
           <Route path="/top-deals" element={<TopDeals />} />
           <Route path="/checkout" element={<Checkout />} />
           <Route path="/order-success" element={<OrderConfirmation />} />
           <Route path="/order-tracking" element={<OrderTracking />} />
           <Route path="/orders" element={<OrderHistory />} />
           <Route path="/tickets" element={<TicketManagement />} />
+
 
           {/* ADMIN */}
           <Route path="/admin/signup" element={<AdminSignup />} />

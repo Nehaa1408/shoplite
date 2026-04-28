@@ -42,6 +42,15 @@ module.exports = {
         xl: "12px",
         "2xl": "16px",
       },
+      keyframes: {
+        floatY: {
+          '0%, 100%': { transform: 'translateY(0px)' },
+          '50%': { transform: 'translateY(-15px)' },
+        },
+      },
+      animation: {
+        floatY: 'floatY 4s ease-in-out infinite',
+      },
     },
   },
   plugins: [],

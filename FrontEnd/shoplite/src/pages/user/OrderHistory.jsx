@@ -112,61 +112,71 @@ const OrderHistory = () => {
   console.log("Stats Render:", totalOrders, totalSpent, deliveredOrders);
 
   return (
+    <div className="bg-surface min-h-screen text-on-surface relative overflow-hidden">
 
-    <div className="order-history-page min-h-screen font-sans text-[#2b2a51]">
+      {/* PREMIUM BACKGROUND */}
+      <div className="absolute inset-0 -z-10">
+        <div className="absolute -top-32 -left-32 w-[400px] h-[400px] bg-blue-500/25 rounded-full blur-[120px]"></div>
+        <div className="absolute top-10 right-[-120px] w-[350px] h-[350px] bg-sky-400/25 rounded-full blur-[120px]"></div>
+        <div className="absolute bottom-[-150px] left-1/2 -translate-x-1/2 w-[500px] h-[500px] bg-blue-300/20 rounded-full blur-[140px]"></div>
+        <div className="absolute top-[30%] left-[30%] w-[300px] h-[300px] bg-blue-500/10 rounded-full blur-[100px]"></div>
+      </div>
 
-      {/* NAVBAR */}
-      <nav className="fixed top-0 w-full z-50 glass-navbar px-8 py-4">
-        <div className="max-w-7xl mx-auto flex justify-between items-center w-full">
+      {/* NEW NAVBAR */}
+      <nav className="fixed top-0 left-0 w-full z-50 backdrop-blur-xl bg-white/70 border-b border-white/40">
+        <div className="max-w-[1400px] mx-auto px-6 md:px-12 h-20 flex items-center justify-between">
 
-          <div className="text-2xl font-bold text-indigo-600">ShopLite</div>
-
-          <div className="hidden md:flex gap-8 text-sm">
-            <span
-              onClick={() => navigate("/")}
-              className="hover:text-indigo-500 cursor-pointer"
-            >
-              Collections
-            </span>
-
-            <span
-              onClick={() => navigate("/categories")}
-              className="hover:text-indigo-500 cursor-pointer"
-            >
-              Categories
-            </span>
-
-            <span
-              onClick={() => navigate("/new")}
-              className="hover:text-indigo-500 cursor-pointer"
-            >
-              New Arrivals
-            </span>
-
-            <span className="text-indigo-600 border-b-2 border-indigo-600 pb-1">
-              Order History
-            </span>
+          {/* LOGO */}
+          <div
+            onClick={() => navigate("/")}
+            className="text-2xl font-black tracking-tight text-indigo-600 cursor-pointer"
+          >
+            ShopLite
           </div>
 
-          <div className="flex items-center gap-5">
-            <span
-              onClick={() => navigate("/")}
-              className="material-symbols-outlined cursor-pointer text-indigo-600 hover:scale-110 transition"
-            >
-              home
-            </span>
-            <span
-              onClick={() => navigate("/cart")}
-              className="material-symbols-outlined cursor-pointer hover:scale-110 transition"
-            >
-              shopping_bag
-            </span>
+          {/* NAV ITEMS */}
+          <div className="hidden lg:flex items-center gap-8 text-sm font-medium text-gray-600">
+            {[
+              { name: "Home", path: "/" },
+              { name: "Categories", path: "/categories" },
+              { name: "Brands", path: "/brands" },
+              { name: "Deals", path: "/top-deals" },
+              { name: "Orders", path: "/orders" },
+            ].map((item, i) => {
+              const isActive = location.pathname === item.path;
 
-            <span className="material-symbols-outlined cursor-pointer hover:scale-110 transition">
-              notifications
-            </span>
+              return (
+                <button
+                  key={i}
+                  onClick={() => navigate(item.path)}
+                  className={`relative transition ${isActive ? "text-indigo-600" : "hover:text-indigo-600"
+                    }`}
+                >
+                  {item.name}
+                </button>
+              );
+            })}
           </div>
 
+          {/* RIGHT */}
+          <div className="flex items-center gap-4">
+
+            {/* HOME ICON */}
+            <button onClick={() => navigate("/")}>
+              <span className="material-symbols-outlined">home</span>
+            </button>
+
+            {/* CART */}
+            <button onClick={() => navigate("/cart")}>
+              <span className="material-symbols-outlined">shopping_cart</span>
+            </button>
+
+            {/* PROFILE */}
+            <button>
+              <span className="material-symbols-outlined">account_circle</span>
+            </button>
+
+          </div>
         </div>
       </nav>
 

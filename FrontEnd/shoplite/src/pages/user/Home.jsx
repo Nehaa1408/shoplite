@@ -112,17 +112,28 @@ const Home = () => {
   };
 
   return (
-    <div className="relative min-h-screen overflow-hidden bg-[#eef2ff] text-on-background flex flex-col">
-      <div className="absolute inset-0 -z-10">
+    <div className="relative min-h-screen overflow-x-hidden bg-[#eef2ff] text-on-background flex flex-col">
+      {/*  FIXED BACKGROUND */}
+      <div className="fixed inset-0 -z-20
+  bg-gradient-to-br from-indigo-50/60 via-white to-purple-50/60" />
 
-        <div className="absolute -top-32 -left-32 w-[400px] h-[400px] bg-blue-500/25 rounded-full blur-[120px]"></div>
+      {/*  FIXED GLOW */}
+      <div className="fixed inset-0 -z-10 pointer-events-none">
 
-        <div className="absolute top-10 right-[-120px] w-[350px] h-[350px] bg-sky-400/25 rounded-full blur-[120px]"></div>
+        {/* LEFT SOFT */}
+        <div className="absolute top-[-80px] left-[-100px] w-[500px] h-[500px]
+    bg-indigo-500/50 blur-[160px] rounded-full" />
 
-        <div className="absolute bottom-[-150px] left-1/2 -translate-x-1/2 w-[500px] h-[500px] bg-blue-300/20 rounded-full blur-[140px]"></div>
+        {/* RIGHT SOFT */}
+        <div className="absolute bottom-[-80px] right-[-100px] w-[500px] h-[500px]
+    bg-purple-600/50 blur-[160px] rounded-full" />
 
-        <div className="absolute top-[30%] left-[30%] w-[300px] h-[300px] bg-blue-500/10 rounded-full blur-[100px]"></div>
       </div>
+
+      <div className="absolute top-[35%] left-1/2 -translate-x-1/2
+  w-[700px] h-[300px]
+  bg-indigo-500/50 blur-[140px] rounded-full" />
+
       {/* CONTENT WRAPPER */}
       <div className="relative z-10 flex flex-col min-h-screen">
 
@@ -258,7 +269,13 @@ const Home = () => {
                       Shop Collection →
                     </button>
 
-                    <button className="px-6 py-3 rounded-full bg-gray-100 text-gray-700 font-semibold hover:bg-gray-200 transition">
+                    <button className="px-6 py-3 rounded-full 
+bg-white text-gray-700 font-semibold 
+shadow-[0_8px_25px_rgba(0,0,0,0.08)] 
+hover:shadow-[0_12px_35px_rgba(99,102,241,0.25)]
+hover:text-indigo-600
+transition-all duration-300 ease-out
+hover:-translate-y-1 active:scale-95">
                       View Lookbook
                     </button>
                   </div>
