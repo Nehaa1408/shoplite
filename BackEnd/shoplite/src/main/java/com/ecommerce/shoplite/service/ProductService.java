@@ -17,30 +17,42 @@ public class ProductService {
     @Autowired
     private ProductRepository productRepository;
 
-   
+    // ➕ Add Product
     public Product addProduct(Product product) {
         return productRepository.save(product);
     }
 
-    
+    // All Products (paginated)
     public Page<Product> getProducts(int page, int size) {
         Pageable pageable = PageRequest.of(page, size);
         return productRepository.findAll(pageable);
     }
 
-    
+    // Category Products
     public Page<Product> getProductsByCategory(String category, int page, int size) {
         Pageable pageable = PageRequest.of(page, size);
         return productRepository.findByCategory_Name(category, pageable);
     }
 
-   
+    // HOME Products
+    public Page<Product> getHomeProducts(int page, int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        return productRepository.findByType("HOME", pageable);
+    }
+
+    // BRAND Products
+    public Page<Product> getBrandProducts(String brand, int page, int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        return productRepository.findByBrandAndType(brand, "BRAND", pageable);
+    }
+
+    // Get by ID
     public Product getProductById(Long id) {
         return productRepository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Product not found"));
     }
 
-    
+    // Delete
     public void deleteProduct(Long id) {
         Product product = productRepository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Product not found"));
@@ -48,7 +60,7 @@ public class ProductService {
         productRepository.delete(product);
     }
 
-    
+    // Update
     public Product updateProduct(Long id, Product updatedProduct) {
 
         Product product = productRepository.findById(id)

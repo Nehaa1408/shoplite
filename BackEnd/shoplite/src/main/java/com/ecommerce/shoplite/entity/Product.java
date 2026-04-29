@@ -40,4 +40,10 @@ public class Product {
     @ManyToOne
     @JoinColumn(name = "category_id")
     private Category category;
+
+    @Column(name = "brand")
+    private String brand;
+
+    @Column(name = "type")
+    private String type;
 }

@@ -18,7 +18,7 @@ export const CartProvider = ({ children }) => {
     try {
       const res = await axios.get("http://localhost:8080/cart", {
         headers: {
-          Authorization: `Bearer ${token}`,
+          Authorization: `Bearer ${token}`
         },
       });
 
