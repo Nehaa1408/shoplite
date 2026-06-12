@@ -14,7 +14,11 @@ deliveryAxios.interceptors.request.use(
         const adminToken =
             sessionStorage.getItem("adminToken");
 
-        let token = deliveryToken;
+        const userToken =
+            localStorage.getItem("token");
+
+        let token =
+            deliveryToken || userToken;
 
         // ADMIN DELIVERY MANAGEMENT APIs
         if (
@@ -27,7 +31,10 @@ deliveryAxios.interceptors.request.use(
                 !config.url?.includes("/profile")
             )
         ) {
-            token = adminToken || deliveryToken;
+            token =
+                adminToken ||
+                deliveryToken ||
+                userToken;
         }
 
         if (
@@ -146,6 +153,20 @@ export const getCompletedOrders = async () => {
     return res.data;
 };
 
+// ================= CONFIRM COD PAYMENT =================
+
+export const confirmCodPayment = async (
+    orderId
+) => {
+
+    const res =
+        await deliveryAxios.put(
+            `/orders/delivery/${orderId}/confirm-cod`
+        );
+
+    return res.data;
+};
+
 // ================= RETURN PICKUP APIs =================
 
 // GET ASSIGNED RETURN PICKUPS
@@ -186,16 +207,16 @@ export const verifyReturnPickupOtp = async (
 
     return res.data;
 };
+
 // COMPLETED RETURN PICKUPS
 export const getCompletedReturnPickups = async () => {
 
     const res =
         await deliveryAxios.get(
-            "/returns/assigned"
+            "/returns/completed-pickups"
         );
 
-    return res.data.filter(
-        (r) => r.status === "PICKUP_COMPLETED"
-    );
+    return res.data;
 };
+
 export default deliveryAxios;

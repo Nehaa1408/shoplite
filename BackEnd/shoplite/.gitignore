@@ -35,18 +35,9 @@ build/
 # Secrets / Environment files
 .env
 .env.*
-application.properties
-application.yml
-application-dev.properties
 
 # OS / random
 .DS_Store
-
-# Secrets 
-application.properties
-application.yml
-.env
-.env.*
 
 # Logs
 *.log
@@ -54,3 +45,6 @@ application.yml
 # OS files
 .DS_Store
 Thumbs.db
+
+# Database backups
+*.sql

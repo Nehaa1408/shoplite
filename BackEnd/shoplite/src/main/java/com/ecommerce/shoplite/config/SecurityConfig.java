@@ -40,12 +40,21 @@ public class SecurityConfig {
                                                 .requestMatchers("/api/delivery/register")
                                                 .permitAll()
 
+                                                .requestMatchers("/api/delivery/apply")
+                                                .authenticated()
+
                                                 .requestMatchers(
                                                                 HttpMethod.GET,
                                                                 "/api/products/**")
                                                 .permitAll()
 
                                                 .requestMatchers("/api/categories/**")
+                                                .permitAll()
+
+                                                .requestMatchers("/api/upload/**")
+                                                .permitAll()
+
+                                                .requestMatchers("/uploads/**")
                                                 .permitAll()
 
                                                 // ================= ADMIN =================
@@ -93,12 +102,11 @@ public class SecurityConfig {
 
                                                 .requestMatchers("/api/returns/*/verify-pickup-otp")
                                                 .hasAuthority("ROLE_DELIVERY")
-
                                                 .requestMatchers("/api/delivery/profile")
-                                                .hasAuthority("ROLE_DELIVERY")
+                                                .authenticated()
 
                                                 .requestMatchers("/api/delivery/profile/update")
-                                                .hasAuthority("ROLE_DELIVERY")
+                                                .authenticated()
 
                                                 // ================= USER =================
                                                 .requestMatchers("/api/cart/**")
@@ -136,7 +144,9 @@ public class SecurityConfig {
                 org.springframework.web.cors.CorsConfiguration config = new org.springframework.web.cors.CorsConfiguration();
 
                 config.setAllowedOrigins(
-                                java.util.List.of("http://localhost:5173"));
+                                java.util.List.of(
+                                                "http://localhost:5173",
+                                                "http://localhost:3000"));
 
                 config.setAllowedMethods(
                                 java.util.List.of(

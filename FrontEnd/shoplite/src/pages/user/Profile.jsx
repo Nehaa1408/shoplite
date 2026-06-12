@@ -51,6 +51,32 @@ const Profile = () => {
   const isDeliveryPartner =
     user.role === "DELIVERY";
 
+  const handleBecomePartner = async () => {
+
+    try {
+
+      const token = localStorage.getItem("token");
+
+      await axios.post(
+        "http://localhost:8080/api/delivery/apply",
+        {},
+        {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        }
+      );
+
+      navigate("/delivery/verification");
+
+    } catch (error) {
+
+      console.error(error);
+
+      alert("Unable to start delivery application");
+    }
+  };
+
   return (
 
     <div className="bg-[#f9f5ff] min-h-screen text-[#2b2a51]">
@@ -172,13 +198,6 @@ const Profile = () => {
               onClick={() => navigate("/orders")}
               className="p-4 bg-white rounded-xl shadow cursor-pointer hover:bg-gray-50"
             >
-              Track Orders →
-            </div>
-
-            <div
-              onClick={() => navigate("/orders")}
-              className="p-4 bg-white rounded-xl shadow cursor-pointer hover:bg-gray-50"
-            >
               Order History →
             </div>
 
@@ -295,7 +314,7 @@ const Profile = () => {
                   </button>
 
                   <button
-                    onClick={() => navigate("/delivery/verification")}
+                    onClick={handleBecomePartner}
                     className="px-8 py-3 rounded-2xl text-white font-semibold
 
                     bg-gradient-to-r
@@ -441,34 +460,18 @@ const Profile = () => {
         {/* SETTINGS */}
         <div>
 
-          <h2 className="text-lg font-bold mb-4">
-            Account Settings
-          </h2>
-
-          <div className="bg-white rounded-xl shadow divide-y">
-
-            <div className="p-4 cursor-pointer hover:bg-gray-50">
-              Change Password
-            </div>
-
-            <div className="p-4 cursor-pointer hover:bg-gray-50">
-              Notifications
-            </div>
-
-            <div
-              onClick={handleLogout}
-              className="p-4 text-red-600 font-bold cursor-pointer hover:bg-red-50"
-            >
-              Logout
-            </div>
-
+          <div
+            onClick={handleLogout}
+            className="p-4 text-red-600 font-bold cursor-pointer hover:bg-red-50"
+          >
+            Logout
           </div>
 
         </div>
 
-      </main>
+      </main >
 
-    </div>
+    </div >
   );
 };
 

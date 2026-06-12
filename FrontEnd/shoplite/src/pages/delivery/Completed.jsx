@@ -147,7 +147,24 @@ const Completed = () => {
 
           {orders.map((order) => {
 
-            const items = order.items || [];
+            const items =
+              order.flowType === "RETURN_PICKUP"
+                ? [
+                  {
+                    productName:
+                      order.selectedItems ||
+                      "Returned Product",
+
+                    quantity: 1,
+
+                    price:
+                      order.refundAmount || 0,
+
+                    image:
+                      "/products/placeholder.webp"
+                  }
+                ]
+                : (order.items || []);
 
             const totalPrice = items.reduce(
               (acc, item) =>
