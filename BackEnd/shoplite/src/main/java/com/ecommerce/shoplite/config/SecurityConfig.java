@@ -34,6 +34,9 @@ public class SecurityConfig {
                                 .authorizeHttpRequests(auth -> auth
 
                                                 // ================= PUBLIC =================
+                                                .requestMatchers(HttpMethod.OPTIONS, "/**")
+                                                .permitAll()
+
                                                 .requestMatchers("/api/auth/**")
                                                 .permitAll()
 
@@ -141,12 +144,16 @@ public class SecurityConfig {
         @Bean
         public org.springframework.web.cors.CorsConfigurationSource corsConfigurationSource() {
 
+                System.out.println("===== CORS CONFIG LOADED =====");
+
                 org.springframework.web.cors.CorsConfiguration config = new org.springframework.web.cors.CorsConfiguration();
 
                 config.setAllowedOrigins(
                                 java.util.List.of(
+                                                "http://13.204.61.123",
                                                 "http://localhost:5173",
-                                                "http://localhost:3000"));
+                                                "http://localhost:3000",
+                                                "http://shoplite.webhop.me"));
 
                 config.setAllowedMethods(
                                 java.util.List.of(
@@ -159,7 +166,7 @@ public class SecurityConfig {
                 config.setAllowedHeaders(
                                 java.util.List.of("*"));
 
-                config.setAllowCredentials(true);
+                config.setAllowCredentials(false);
 
                 org.springframework.web.cors.UrlBasedCorsConfigurationSource source = new org.springframework.web.cors.UrlBasedCorsConfigurationSource();
 

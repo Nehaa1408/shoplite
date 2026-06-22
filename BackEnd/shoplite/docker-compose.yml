@@ -1,9 +1,8 @@
-version: "3.8"
-
 services:
   mysql:
     image: mysql:8.0
     container_name: shoplite-mysql
+    restart: unless-stopped
 
     environment:
       MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
@@ -18,6 +17,7 @@ services:
   shoplite:
     build: .
     container_name: shoplite-backend
+    restart: unless-stopped
 
     environment:
       DB_PASSWORD: ${MYSQL_ROOT_PASSWORD}
